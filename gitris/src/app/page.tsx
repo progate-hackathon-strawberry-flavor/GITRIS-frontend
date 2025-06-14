@@ -1,6 +1,16 @@
 import Image from "next/image";
+import { createClient } from '@/lib/supabase/server';
+import AuthButton from './(auth)/register/auth-button';
 
-export default function Home() {
+export default async function Home() {
+  // サーバーサイドでSupabaseクライアントを作成
+  const supabase = createClient();
+
+  // ユーザーのセッション情報（ログイン状態）を取得
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
@@ -24,6 +34,26 @@ export default function Home() {
             Save and see your changes instantly.
           </li>
         </ol>
+
+        {/* ===== ここからSupabase機能を追加 ===== */}
+
+        <div className="w-full p-8 flex flex-col items-center gap-4 border-t border-b">
+          <h2 className="text-lg font-bold">Supabase認証</h2>
+          {/* AuthButtonコンポーネントに、サーバーで取得したsessionを渡す */}
+          <AuthButton session={session} />
+          
+          {/* ログインしている場合のみ、ユーザー情報を表示する */}
+          {session && (
+            <div className="w-full text-sm mt-4">
+              <p className="font-semibold">ログイン中のユーザー:</p>
+              <pre className="bg-gray-100 dark:bg-gray-800 p-2 rounded-md overflow-x-auto">
+                {JSON.stringify(session.user, null, 2)}
+              </pre>
+            </div>
+          )}
+        </div>
+
+        {/* ===== ここまで ===== */}
 
         <div className="flex gap-4 items-center flex-col sm:flex-row">
           <a
