@@ -1,15 +1,15 @@
 import Image from "next/image";
 import { createClient } from '@/lib/supabase/server';
-import AuthButton from './(auth)/register/auth-button';
+import AuthButton from './auth/register/auth-button';
 
 export default async function Home() {
   // サーバーサイドでSupabaseクライアントを作成
-  const supabase = createClient();
+  const supabase = await createClient();
 
   // ユーザーのセッション情報（ログイン状態）を取得
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
@@ -40,14 +40,14 @@ export default async function Home() {
         <div className="w-full p-8 flex flex-col items-center gap-4 border-t border-b">
           <h2 className="text-lg font-bold">Supabase認証</h2>
           {/* AuthButtonコンポーネントに、サーバーで取得したsessionを渡す */}
-          <AuthButton session={session} />
+          <AuthButton session={user} />
           
           {/* ログインしている場合のみ、ユーザー情報を表示する */}
-          {session && (
+          {user && (
             <div className="w-full text-sm mt-4">
               <p className="font-semibold">ログイン中のユーザー:</p>
               <pre className="bg-gray-100 dark:bg-gray-800 p-2 rounded-md overflow-x-auto">
-                {JSON.stringify(session.user, null, 2)}
+                {JSON.stringify(user, null, 2)}
               </pre>
             </div>
           )}

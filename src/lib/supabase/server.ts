@@ -3,10 +3,10 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
-export function createClient() {
+export async function createClient() {
   // cookies() は、必ずServer ComponentやRoute Handler内で呼び出される
   // この createClient 関数の中で呼び出すようにする
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
 
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
