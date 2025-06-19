@@ -1,7 +1,6 @@
 import Image from "next/image";
 import { createClient } from '@/lib/supabase/server';
-import LoginButton from '../components/login-button';
-import './globals.css';
+import HomepageButton from './HomepageButton';
 
 export default async function Login() {
   // サーバーサイドでSupabaseクライアントを作成
@@ -23,17 +22,7 @@ export default async function Login() {
           height={221}
           priority
         />
-        <div>
-          <LoginButton session={user} />
-          {user && (
-            <div className="w-full text-sm mt-4">
-              <p className="font-semibold">ログイン中のユーザー:</p>
-              <pre className="bg-gray-100 dark:bg-gray-800 p-2 rounded-md overflow-x-auto">
-                {JSON.stringify(user, null, 2)}
-              </pre>
-            </div>
-          )}
-        </div>
+        <HomepageButton />
       </main>
     </div>
   );

@@ -1,26 +1,14 @@
+/* 1. Tailwind CSSの基本スタイルをインポート */
 @import "tailwindcss";
 
+/* 2. デフォルト（ライトモード）の変数を定義 */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #151b23; /* 背景色 (白) */
+  --foreground: #f0f5fa; /* 文字色 (黒に近いグレー) */
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* 3. 変数を実際に適用 */
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
 }
