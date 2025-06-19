@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import AuthButton from './auth/register/auth-button';
 // CSS Modulesをインポート
 import styles from './page.module.css';
+import HelpModalTrigger from './components/HelpModal/HelpModalTrigger'; // パスを適切に調整してください
 
 export default async function Home() {
   // サーバーサイドでSupabaseクライアントを作成
@@ -21,7 +22,7 @@ export default async function Home() {
       {/* 右上アイコン */}
       <div className={styles.topRightIcons}>
         <button className={styles.iconButton} title="ヘルプ">
-          ?
+          <HelpModalTrigger />
         </button>
         <button className={styles.iconButton} title="お問い合わせ">
           💬
