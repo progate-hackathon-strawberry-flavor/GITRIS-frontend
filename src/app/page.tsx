@@ -1,8 +1,9 @@
-import Image from "next/image";
 import { createClient } from '@/lib/supabase/server';
 import LoginButton from '../components/login-button';
 import './globals.css';
-
+import HelpModalTrigger from './components/HelpModal/helpModal.module';
+import RankingModalTrigger from './components/rankingModal/RankingModalTrigger';
+import styles from './page.module.css';
 export default async function Login() {
   // サーバーサイドでSupabaseクライアントを作成
   const supabase = await createClient();
@@ -13,28 +14,38 @@ export default async function Login() {
   } = await supabase.auth.getUser();
 
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/ロゴ.png"
-          alt="gitris-logo"
-          width={504}
-          height={221}
-          priority
-        />
-        <div>
-          <LoginButton session={user} />
-          {user && (
-            <div className="w-full text-sm mt-4">
-              <p className="font-semibold">ログイン中のユーザー:</p>
-              <pre className="bg-gray-100 dark:bg-gray-800 p-2 rounded-md overflow-x-auto">
-                {JSON.stringify(user, null, 2)}
-              </pre>
-            </div>
-          )}
+    // CSS Modulesのクラスを適用
+    <div className={styles.container}>
+      {/* <style>タグはCSS Modulesファイルに移したので削除 */}
+
+      {/* 右上アイコン */}
+      <div className={styles.topRightIcons}>
+        <div className={styles.iconButton} title="ヘルプ">
+          <HelpModalTrigger />
         </div>
-      </main>
+        <div className={styles.iconButton} title="お問い合わせ">
+          <RankingModalTrigger />
+        </div>
+      </div>
+      <div className={styles.supabaseAuthSection}>
+        <LoginButton session={user} />
+        {user && (
+          <div className={styles.userInfoContainer}>
+            <p
+              style={{
+                fontWeight: 'semibold',
+                color: styles.userInfoContainer.pColor,
+              }}
+            >
+              ログイン中のユーザー:
+            </p>{' '}
+            {/* pColorは存在しないので注意 */}
+            <pre className={styles.userInfoPre}>
+              {JSON.stringify(user, null, 2)}
+            </pre>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
