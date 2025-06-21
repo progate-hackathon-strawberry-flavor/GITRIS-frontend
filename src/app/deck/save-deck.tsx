@@ -41,8 +41,8 @@ export default function SaveDeckButton({ tetrominosToSave, onSaveSuccess }: Save
               tetriminos: tetrominosToSave,
             };
             
-            const apiUrl = 'http://localhost:8080/api/protected/deck/save';
-            const response = await fetch(apiUrl, {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+            const response = await fetch(`${apiUrl}/api/protected/deck/save`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

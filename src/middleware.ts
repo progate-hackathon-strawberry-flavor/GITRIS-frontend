@@ -58,19 +58,15 @@ export async function middleware(request: NextRequest) {
 
   await supabase.auth.getUser()
 
-  return response
-}
-
-const {
+  const {
     data: { user },
   } = await supabase.auth.getUser()
 
-
   // 保護したいページ（例: /dashboard や /account など）のパスを配列で定義します。
-  const protectedPaths = ['/dashboard', '/account', '/settings'];
+  const protectedPaths = ['/dashboard', '/account', '/settings']
 
   // 現在のパスが保護対象のいずれかで始まるかチェックします。
-  const isProtectedPath = protectedPaths.some(path => request.nextUrl.pathname.startsWith(path));
+  const isProtectedPath = protectedPaths.some(path => request.nextUrl.pathname.startsWith(path))
 
   // ユーザーがログインしていて、かつ保護対象ページにアクセスしようとしている場合
   if (user && isProtectedPath) {
@@ -97,17 +93,14 @@ const {
       return NextResponse.redirect(redirectUrl)
     }
   }
-  
-  // ===== ここまで追加 =====
 
   // ログインしていないユーザーが保護対象ページにアクセスした場合の処理（任意）
   if (!user && isProtectedPath) {
-    const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = '/login';
-    redirectUrl.searchParams.set('error', 'login_required');
-    return NextResponse.redirect(redirectUrl);
+    const redirectUrl = request.nextUrl.clone()
+    redirectUrl.pathname = '/login'
+    redirectUrl.searchParams.set('error', 'login_required')
+    return NextResponse.redirect(redirectUrl)
   }
-
 
   // 最終的にレスポンスを返す（セッションクッキーの更新もここに含まれる）
   return response

@@ -28,12 +28,14 @@ export default async function Login() {
         </div>
       </div>
       <div className={styles.supabaseAuthSection}>
+        {/* @ts-ignore */}
         <LoginButton session={user} />
         {user && (
           <div className={styles.userInfoContainer}>
             <p
               style={{
                 fontWeight: 'semibold',
+                // @ts-ignore
                 color: styles.userInfoContainer.pColor,
               }}
             >
