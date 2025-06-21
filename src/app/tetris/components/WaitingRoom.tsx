@@ -56,7 +56,7 @@ export default function WaitingRoom({
         'Content-Type': 'application/json'
       };
       if (authToken) {
-        headers['Authorization'] = authToken;
+        headers['Authorization'] = `Bearer ${authToken}`;
       }
       
       const response = await fetch(sessionUrl, {
@@ -124,9 +124,11 @@ export default function WaitingRoom({
   useEffect(() => {
     if (session) {
       setAuthToken(session.access_token);
+      console.log('🔐 Authenticated session found, using JWT token');
     } else {
       // 認証がない場合は認証バイパスモードで動作
-      setAuthToken(null);
+      setAuthToken('BYPASS_AUTH');
+      console.log('🔓 No authentication session found, using BYPASS_AUTH mode');
     }
     setIsInitialized(true); // 認証状態確定
   }, [session]);
@@ -152,7 +154,7 @@ export default function WaitingRoom({
         'Content-Type': 'application/json'
       };
       if (authToken) {
-        headers['Authorization'] = authToken;
+        headers['Authorization'] = `Bearer ${authToken}`;
       }
       
       const response = await fetch(backendUrl, {
@@ -192,8 +194,9 @@ export default function WaitingRoom({
     
     setWsConnecting(true);
     
-    // 手動接続時はUserID チェックを緩和（認証トークンがあれば OK）
+    // 手動接続時はUserID チェックを緩和（認証トークンまたはテストユーザーIDがあれば OK）
     if (!testUserId && !authToken) {
+      console.log('⚠️ No testUserId and no auth token, skipping WebSocket connection');
       setConnectionStatus('disconnected');
       setWsConnecting(false);
       return;
