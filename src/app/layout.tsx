@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { DotGothic16 } from "next/font/google";
 import "./globals.css";
 import Header from "@/app/components/Header";
+import { AuthProvider } from "@/hooks/useAuth";
 
 const dotGothic16 = DotGothic16({
   weight: ["400"],
@@ -24,8 +25,10 @@ export default function RootLayout({
     <html lang="ja">
       {/* 3. classNameをbodyタグに渡す */}
       <body className={dotGothic16.className}>
-        <Header />
-        {children}
+        <AuthProvider>
+          <Header />
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );
