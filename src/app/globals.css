@@ -1,14 +1,82 @@
 /* 1. Tailwind CSSの基本スタイルをインポート */
 @import "tailwindcss";
 
-/* 2. デフォルト（ライトモード）の変数を定義 */
+/* 2. GITRIS基本配色変数を定義 */
 :root {
-  --background: #151b23; /* 背景色 (白) */
-  --foreground: #f0f5fa; /* 文字色 (黒に近いグレー) */
+  /* 背景・テキスト基本色 */
+  --background: #151B23; /* 背景/テキストの濃い色 */
+  --foreground: #F0F5FA; /* 背景/テキストの明るい色 */
+  
+  /* メイン配色 */
+  --gitris-bright-green: #56D364; /* メインの明るい緑 - 選択肢の部分、数字や文字の部分 */
+  --gitris-dark-green: #2DA042;   /* メインの暗い緑 - ボタン */
+  
+  /* テトリミノカラー（5段階グラデーション） */
+  /* Iミノ (シアン系) */
+  --tetromino-i-1: #5BE3B6; /* 最も明るい (More Contribution) */
+  --tetromino-i-2: #50C69E; /* 少し明るい */
+  --tetromino-i-3: #43A987; /* 中間 */
+  --tetromino-i-4: #388C70; /* 少し暗い */
+  --tetromino-i-5: #2C6E58; /* 最も暗い (Less Contribution) */
+  
+  /* Oミノ (黄色系) */
+  --tetromino-o-1: #F2E530;
+  --tetromino-o-2: #D5CA2B;
+  --tetromino-o-3: #B8AE24;
+  --tetromino-o-4: #989320;
+  --tetromino-o-5: #7E7719;
+  
+  /* Tミノ (オレンジ系) */
+  --tetromino-t-1: #F28707;
+  --tetromino-t-2: #D57706;
+  --tetromino-t-3: #B86706;
+  --tetromino-t-4: #985706;
+  --tetromino-t-5: #7E4606;
+  
+  /* Sミノ (緑系) */
+  --tetromino-s-1: #6EF230;
+  --tetromino-s-2: #61D52B;
+  --tetromino-s-3: #53B824;
+  --tetromino-s-4: #469B20;
+  --tetromino-s-5: #397E19;
+  
+  /* Zミノ (赤系) */
+  --tetromino-z-1: #F23064;
+  --tetromino-z-2: #D52858;
+  --tetromino-z-3: #B8244C;
+  --tetromino-z-4: #9B2040;
+  --tetromino-z-5: #7E1934;
+  
+  /* Jミノ (青系) */
+  --tetromino-j-1: #0066FF;
+  --tetromino-j-2: #005AE2;
+  --tetromino-j-3: #0050C5;
+  --tetromino-j-4: #0043A8;
+  --tetromino-j-5: #00378A;
+  
+  /* Lミノ (紫系) */
+  --tetromino-l-1: #B963F2;
+  --tetromino-l-2: #A357D5;
+  --tetromino-l-3: #8D4BB8;
+  --tetromino-l-4: #763F9B;
+  --tetromino-l-5: #60347E;
+  
+  /* GitHub草の基本色（GitHubのコントリビューションレベル表示用） */
+  --github-grass-0: #151B23; /* レベル0 - 貢献なし */
+  --github-grass-1: #023A16; /* レベル1 */
+  --github-grass-2: #196C2E; /* レベル2 */
+  --github-grass-3: #2DA042; /* レベル3 */
+  --github-grass-4: #56D364; /* レベル4 - 最大貢献 */
 }
 
 /* 3. 変数を実際に適用 */
 body {
   background: var(--background);
   color: var(--foreground);
+  font-family: 'DotGothic16', monospace, sans-serif;
+}
+
+/* 全体的にDotGothic16フォントを適用 */
+* {
+  font-family: inherit;
 }
