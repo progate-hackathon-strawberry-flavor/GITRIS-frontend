@@ -8,7 +8,7 @@ export default function HomepageButton() {
 
   return (
     <div className="flex gap-4">
-      <button type="button" onClick={() => router.push('/game')}>
+      <button type="button" onClick={() => router.push('/tetris')}>
         ゲームを始める
       </button>
       <button type="button" onClick={() => router.push('/deck')}>
