@@ -608,99 +608,12 @@ export default function DeckMain() {
   };
 
   return (
-    <div
-      className="min-h-screen flex flex-col items-center justify-center p-4"
-      style={{
-        backgroundColor: UI_COLORS.darkBackground,
-        fontFamily: '"DotGothic16", monospace',
-      }}
-    >
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');`}</style>
-      <h1
-        className="text-4xl font-bold mb-8"
-        style={{ color: UI_COLORS.lightText }}
-      >
-        GitHub 草テトリス：デッキ編成
-      </h1>
-
-      <div className="bg-gray-800 p-6 rounded-xl shadow-lg mb-8 w-full max-w-4xl flex justify-between items-start flex-wrap">
-        {/* テトリミノパレット */}
-        <div className="w-full md:w-1/4 mb-6 md:mb-0">
-          <h2
-            className="text-2xl font-semibold mb-4"
-            style={{ color: UI_COLORS.lightText }}
-          >
-            テトリミノパレット
-          </h2>
-          <div className="grid grid-cols-2 gap-4">
-            {Object.keys(TETROMINO_SHAPES).map((type) => {
-              const isPlaced = placedTetrominos.some((p) => p.type === type);
-              return (
-                <div
-                  key={type}
-                  className={`p-3 bg-gray-700 rounded-lg flex flex-col items-center justify-center transition-all ${
-                    isPlaced
-                      ? "opacity-40 cursor-not-allowed"
-                      : "cursor-grab hover:scale-105"
-                  }`}
-                  draggable={!isPlaced}
-                  onDragStart={(e) => handlePaletteDragStart(e, type)}
-                >
-                  <div
-                    className="grid gap-px"
-                    style={{ gridTemplateColumns: `repeat(4, 12px)` }}
-                  >
-                    {Array.from({ length: 4 }).map((_, r) =>
-                      Array.from({ length: 4 }).map((__, c) => (
-                        <div
-                          key={`${type}-${r}-${c}`}
-                          className="w-3 h-3 rounded-sm"
-                          style={{
-                            backgroundColor: "transparent",
-                            border: TETROMINO_SHAPES[
-                              type as keyof typeof TETROMINO_SHAPES
-                            ].some(([x, y]) => x === c && y === r)
-                              ? `1px solid ${
-                                  TETROMINO_COLORS[
-                                    type as keyof typeof TETROMINO_COLORS
-                                  ][0]
-                                }`
-                              : "none",
-                          }}
-                        ></div>
-                      ))
-                    )}
-                  </div>
-                  <span
-                    className="text-sm mt-2 font-bold"
-                    style={{ color: UI_COLORS.lightText }}
-                  >
-                    {type}-ミノ
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-        {/* グリッドとスコア表示 */}
-        <div className="w-full md:w-3/4 flex flex-col items-center">
-          <div className="w-full flex justify-between items-center mb-4">
-            <h2
-              className="text-2xl font-semibold"
-              style={{ color: UI_COLORS.lightText }}
-            >
-              GitHub草グリッド (8x7)
-            </h2>
-            < GetContributionsButton/>
-            {/*<button
-              onClick={fetchContributions}
-              disabled={loading}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg disabled:bg-gray-500"
-            >
-              {loading ? "取得中..." : "データ再取得"}
-            </button>/}*/}
-          </div>
-
+    <div>
+      <div>
+        < GetContributionsButton/>
+      </div>
+      <div className="flex justify-around p-4">
+        <div>
           {/* メッセージボックス */}
           {message && (
             <div className="bg-blue-500 text-white px-4 py-2 rounded-lg mb-4 text-center">
@@ -722,35 +635,21 @@ export default function DeckMain() {
               boxShadow: "0 0 15px rgba(86, 211, 100, 0.5)",
             }}
           >
-            ポテンシャルスコア:{" "}
+            ポテンシャルスコア
+          </div>
+          <div
+            className="text-4xl"
+            style={{
+              color: UI_COLORS.lightText,
+            }}
+          >
+            {" "}  
             <span style={{ color: UI_COLORS.brightGreen }}>
               {potentialScore}
             </span>
           </div>
-          <div className="mb-4">
-            <SaveDeckButton
-              tetrominosToSave={placedTetrominos.map((t) => {
-                const startDate =
-                  contributionGrid[t.y]?.[t.x]?.date ||
-                  new Date().toISOString().split("T")[0];
-                const positions = t.blockDetails.map((block: any) => ({
-                  x: block.x,
-                  y: block.y,
-                  score: block.score,
-                }));
-                const payload: TetrominoPlacementPayload = {
-                  type: t.type,
-                  rotation: t.rotation,
-                  startDate,
-                  positions,
-                  scorePotential: t.scorePotential,
-                };
-                return payload;
-              })}
-              onSaveSuccess={onSaveSuccess}
-            />
-          </div>
-
+        </div>
+        <div>
           {/* メイングリッド */}
           <div
             ref={gridRef}
@@ -893,6 +792,84 @@ export default function DeckMain() {
             })}
           </div>
         </div>
+        <div className=" p-6 mb-8 w-full max-w-4xl flex justify-between items-start flex-wrap">
+          
+          {/* テトリミノパレット */}
+          <div className="w-full md:w-1/4 mb-6 md:mb-0">
+            <div className="grid grid-cols-2 gap-4">
+              {Object.keys(TETROMINO_SHAPES).map((type) => {
+                const isPlaced = placedTetrominos.some((p) => p.type === type);
+                return (
+                 <div
+                    key={type}
+                    className={`p-3 bg-gray-700 rounded-lg flex flex-col items-center justify-center transition-all ${
+                      isPlaced
+                        ? "opacity-40 cursor-not-allowed"
+                        : "cursor-grab hover:scale-105"
+                    }`}
+                    draggable={!isPlaced}
+                    onDragStart={(e) => handlePaletteDragStart(e, type)}
+                  >
+                    <div
+                      className="grid gap-px"
+                      style={{ gridTemplateColumns: `repeat(4, 12px)` }}
+                    >
+                      {Array.from({ length: 4 }).map((_, r) =>
+                        Array.from({ length: 4 }).map((__, c) => (
+                          <div
+                            key={`${type}-${r}-${c}`}
+                            className="w-3 h-3 rounded-sm"
+                            style={{
+                              backgroundColor: "transparent",
+                              border: TETROMINO_SHAPES[
+                                type as keyof typeof TETROMINO_SHAPES
+                              ].some(([x, y]) => x === c && y === r)
+                                ? `1px solid ${
+                                    TETROMINO_COLORS[
+                                      type as keyof typeof TETROMINO_COLORS
+                                    ][0]
+                                  }`
+                                : "none",
+                            }}
+                          ></div>
+                        ))
+                      )}
+                    </div>
+                    <span
+                      className="text-sm mt-2 font-bold"
+                      style={{ color: UI_COLORS.lightText }}
+                    >
+                      {type}-ミノ
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="mb-4">
+          <SaveDeckButton
+              tetrominosToSave={placedTetrominos.map((t) => {
+                const startDate =
+                  contributionGrid[t.y]?.[t.x]?.date ||
+                  new Date().toISOString().split("T")[0];
+                const positions = t.blockDetails.map((block: any) => ({
+                  x: block.x,
+                  y: block.y,
+                  score: block.score,
+                }));
+                const payload: TetrominoPlacementPayload = {
+                  type: t.type,
+                  rotation: t.rotation,
+                  startDate,
+                  positions,
+                  scorePotential: t.scorePotential,
+                };
+                return payload;
+              })}
+              onSaveSuccess={onSaveSuccess}
+            />
       </div>
     </div>
   );
