@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import { DotGothic16 } from 'next/font/google'; 
-import './globals.css';
+import { DotGothic16 } from "next/font/google";
+import "./globals.css";
+import Header from "@/app/components/Header";
 
 const dotGothic16 = DotGothic16({
-  weight: ['400'],        
-  subsets: ['latin'],     
-  display: 'swap',         
+  weight: ["400"],
+  subsets: ["latin"],
+  display: "swap",
 });
 
 //Webページの<head>タグ内に記述される情報
@@ -23,6 +24,7 @@ export default function RootLayout({
     <html lang="ja">
       {/* 3. classNameをbodyタグに渡す */}
       <body className={dotGothic16.className}>
+        <Header />
         {children}
       </body>
     </html>
