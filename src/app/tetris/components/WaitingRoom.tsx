@@ -39,9 +39,11 @@ export default function WaitingRoom({
   const [isPolling, setIsPolling] = useState<boolean>(false);
   const pollingInterval = useRef<NodeJS.Timeout | null>(null);
 
+  // ログ機能を無効化
   const addLog = (message: string) => {
-    const timestamp = new Date().toLocaleTimeString();
-    setLogs(prev => [...prev.slice(-19), `[${timestamp}] ${message}`]);
+    // ログ出力を無効化
+    // const timestamp = new Date().toLocaleTimeString();
+    // setLogs(prev => [...prev.slice(-19), `[${timestamp}] ${message}`]);
   };
 
   // ゲームセッション情報を取得する関数
@@ -64,18 +66,18 @@ export default function WaitingRoom({
 
       if (response.ok) {
         const sessionData = await response.json();
-        addLog(`📊 セッション情報取得: Player1=${sessionData.player1 ? '✅' : '❌'}, Player2=${sessionData.player2 ? '✅' : '❌'}, Status=${sessionData.status}`);
+        // セッション情報取得の詳細ログを削除
         
         // ゲームセッション情報を更新
         setGameSession(sessionData);
         
         return sessionData;
       } else {
-        addLog(`❌ セッション情報取得エラー: ${response.status}`);
+        // エラーログを削除
         return null;
       }
     } catch (error) {
-      addLog(`❌ セッション情報取得失敗: ${error}`);
+      // エラーログを削除
       return null;
     }
   };
@@ -83,11 +85,9 @@ export default function WaitingRoom({
   // ポーリング開始
   const startPolling = () => {
     if (isPolling || pollingInterval.current) {
-      addLog('⚠️ ポーリング既に実行中');
       return;
     }
     
-    addLog('🔄 ゲームセッション情報のポーリング開始');
     setIsPolling(true);
     
     // 即座に1回実行
@@ -99,7 +99,6 @@ export default function WaitingRoom({
       
       // 2人揃ったらポーリング停止
       if (session && session.player1 && session.player2) {
-        addLog('👥 2人揃いました！ポーリングを停止します');
         stopPolling();
       }
     }, 3000);
@@ -112,7 +111,6 @@ export default function WaitingRoom({
       pollingInterval.current = null;
     }
     setIsPolling(false);
-    addLog('⏹️ ポーリング停止');
   };
 
   // コンポーネントのクリーンアップ
@@ -124,29 +122,23 @@ export default function WaitingRoom({
 
   // 認証トークンを取得
   useEffect(() => {
-    if (session?.access_token) {
-      setAuthToken(`Bearer ${session.access_token}`);
-      addLog('認証トークンを取得しました');
+    if (session) {
+      setAuthToken(session.access_token);
     } else {
-      // 認証されていない場合（開発環境ではBYPASS_AUTHを使用）
-      setAuthToken('');
-      addLog('認証バイパスモードで動作します');
+      // 認証がない場合は認証バイパスモードで動作
+      setAuthToken(null);
     }
     setIsInitialized(true); // 認証状態確定
   }, [session]);
 
   const joinByPasscode = async () => {
-    addLog(`joinByPasscode called: hasJoined=${hasJoined}, inProgress=${joinInProgress.current}`);
-    
     if (hasJoined || joinInProgress.current) {
-      addLog('❌ 既に入室処理を実行済み/実行中です（重複実行防止）');
       return;
     }
     
     try {
       joinInProgress.current = true; // ref による排他制御
       setHasJoined(true); // 実行フラグを設定
-      addLog('✅ 合言葉でのルーム参加処理を開始します...');
       
       // TODO: 実際のDeckID取得処理を実装
       const deckId = 'default_deck_id';
@@ -163,9 +155,6 @@ export default function WaitingRoom({
         headers['Authorization'] = authToken;
       }
       
-      addLog(`🌐 HTTPリクエスト送信: ${backendUrl}`);
-      addLog(`📋 ヘッダー: ${JSON.stringify(headers)}`);
-      
       const response = await fetch(backendUrl, {
         method: 'POST',
         headers,
@@ -175,29 +164,19 @@ export default function WaitingRoom({
       });
 
       const data = await response.json();
-      addLog(`合言葉でのルーム参加結果: ${JSON.stringify(data)}`);
       
       if (data.success) {
-        addLog(`🎉 入室成功: ${data.message}`);
-        
         // レスポンスからUserIDを取得（認証バイパス時）
         if (data.user_id) {
           setTestUserId(data.user_id);
-          addLog(`✅ サーバーから取得したUserID: ${data.user_id}`);
         }
         
-        addLog('✅ 入室完了！WebSocket接続は手動で行ってください。');
-        
         // 入室成功後、ゲームセッション情報のポーリングを開始
-        addLog('🔄 ゲームセッション情報の監視を開始します...');
         setTimeout(() => {
           startPolling();
         }, 1000); // 1秒後にポーリング開始
-      } else {
-        addLog(`❌ 入室失敗: ${data.error || 'Unknown error'}`);
       }
     } catch (error) {
-      addLog(`合言葉でのルーム参加エラー: ${error}`);
       setHasJoined(false); // エラー時はフラグをリセット
       joinInProgress.current = false; // ref もリセット
     } finally {
@@ -206,11 +185,8 @@ export default function WaitingRoom({
   };
 
   const connectWebSocket = (retryCount = 0) => {
-    addLog(`🔍 WebSocket接続チェック: testUserId="${testUserId}", authToken="${authToken ? 'あり' : 'なし'}", retry=${retryCount}`);
-    
     // 既に接続済みまたは接続中の場合はスキップ
     if (connectionStatus === 'connected' || connectionStatus === 'connecting' || wsConnecting) {
-      addLog('✅ WebSocket既に接続済み/接続中、スキップします');
       return;
     }
     
@@ -218,7 +194,6 @@ export default function WaitingRoom({
     
     // 手動接続時はUserID チェックを緩和（認証トークンがあれば OK）
     if (!testUserId && !authToken) {
-      addLog('❌ UserIDまたは認証トークンが必要です');
       setConnectionStatus('disconnected');
       setWsConnecting(false);
       return;
@@ -228,14 +203,11 @@ export default function WaitingRoom({
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
     const wsUrl = apiUrl.replace('http://', 'ws://').replace('https://', 'wss://') + `/api/game/ws/${passcode}`;
     
-    addLog(`WebSocket接続を試行中: ${wsUrl}`);
-    addLog(`使用予定UserID: ${testUserId || '認証トークンから取得'}`);
     setConnectionStatus('connecting');
 
     const ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
-      addLog('WebSocket接続が開かれました');
       setConnectionStatus('connected');
       setWsConnecting(false);
 
@@ -246,18 +218,7 @@ export default function WaitingRoom({
         user_id: testUserId // 認証バイパス時のUserIDを指定
       };
       
-      addLog(`WebSocket認証データ: ${JSON.stringify({
-        type: authMessage.type,
-        token: authMessage.token ? 'Bearer ...' : 'BYPASS_AUTH',
-        user_id: authMessage.user_id || '(empty)'
-      })}`);
-      
       ws.send(JSON.stringify(authMessage));
-      addLog(`認証メッセージを送信: UserID=${testUserId || 'auto'}`);
-      
-      if (!authToken) {
-        addLog('認証バイパスモードでWebSocket接続しました');
-      }
     };
 
     ws.onmessage = (event) => {
@@ -266,7 +227,7 @@ export default function WaitingRoom({
         
         if (data.type) {
           if (data.type === 'auth_success') {
-            addLog('認証が成功しました');
+            // 認証成功の処理（ログなし）
           } else {
             handleGameMessage(data);
           }
@@ -275,8 +236,6 @@ export default function WaitingRoom({
           
           // ゲームが開始されたかチェック
           if (data.status === 'playing') {
-            addLog('🎮 ゲームが開始されました！WebSocket所有権を親コンポーネントに移譲します');
-            
             // WebSocket所有権を親に移譲する前に、このコンポーネントでのイベントリスナーを削除
             ws.onmessage = null;
             ws.onerror = null;
@@ -289,18 +248,16 @@ export default function WaitingRoom({
           }
         }
       } catch (error) {
-        addLog(`メッセージ解析エラー: ${error}`);
+        // エラーログを削除
       }
     };
 
     ws.onerror = (event) => {
-      addLog(`WebSocketエラー: ${event}`);
       setConnectionStatus('disconnected');
       setWsConnecting(false);
     };
 
     ws.onclose = (event) => {
-      addLog(`WebSocket接続が閉じられました: ${event.code} - ${event.reason}`);
       setConnectionStatus('disconnected');
       setWsConnecting(false);
     };
@@ -328,7 +285,6 @@ export default function WaitingRoom({
   // 初期化完了且つまだ入室していない場合のみ実行
   useEffect(() => {
     if (isInitialized && !hasJoined) {
-      addLog(`🚀 初期化完了、入室処理開始: initialized=${isInitialized}, hasJoined=${hasJoined}`);
       joinByPasscode();
     }
   }, [isInitialized, hasJoined]); // sessionとauthTokenを依存配列から完全に除去
@@ -376,132 +332,129 @@ export default function WaitingRoom({
     <div className="waiting-room">
       <div className="waiting-card">
         <div className="waiting-header">
-          <h2>🔄 ルーム待機中</h2>
+          <h2>ルーム待機中</h2>
           <p><strong>合言葉:</strong> {passcode}</p>
           <p><strong>接続状態:</strong> {getConnectionStatusDisplay()}</p>
         </div>
 
-        <div className="session-info" style={{ margin: '20px 0', padding: '15px', backgroundColor: '#1a1a1a', borderRadius: '8px' }}>
-          <h3>📊 セッション情報</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '10px' }}>
-            <div>
-              <strong>Player 1:</strong> 
-              <span style={{ marginLeft: '8px', color: gameSession?.player1 ? '#4CAF50' : '#ff6b6b' }}>
-                {gameSession?.player1 ? `✅ ${gameSession.player1.user_id}` : '❌ 空席'}
-              </span>
+        <div className="session-info" style={{ margin: '20px 0' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px', marginBottom: '30px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', padding: '15px' }}>
+              <img 
+                src="https://github.com/github.png" 
+                alt="GitHub" 
+                style={{ width: '32px', height: '32px', marginRight: '15px' }}
+              />
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <span style={{ fontWeight: 'bold', fontSize: '16px' }}>Player 1</span>
+                <span style={{ fontSize: '14px', color: gameSession?.player1 ? '#4CAF50' : '#ff6b6b', marginTop: '4px' }}>
+                  {gameSession?.player1 ? gameSession.player1.user_id : '待機中...'}
+                </span>
+              </div>
             </div>
-            <div>
-              <strong>Player 2:</strong> 
-              <span style={{ marginLeft: '8px', color: gameSession?.player2 ? '#4CAF50' : '#ff6b6b' }}>
-                {gameSession?.player2 ? `✅ ${gameSession.player2.user_id}` : '❌ 空席'}
-              </span>
+            
+            <div style={{ display: 'flex', alignItems: 'center', padding: '15px' }}>
+              <img 
+                src="https://github.com/github.png" 
+                alt="GitHub" 
+                style={{ width: '32px', height: '32px', marginRight: '15px' }}
+              />
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <span style={{ fontWeight: 'bold', fontSize: '16px' }}>Player 2</span>
+                <span style={{ fontSize: '14px', color: gameSession?.player2 ? '#4CAF50' : '#ff6b6b', marginTop: '4px' }}>
+                  {gameSession?.player2 ? gameSession.player2.user_id : '待機中...'}
+                </span>
+              </div>
             </div>
           </div>
-          <div style={{ marginTop: '10px' }}>
+          
+          <div style={{ textAlign: 'center', padding: '15px' }}>
             <strong>ゲーム状態:</strong> 
             <span style={{ marginLeft: '8px', color: gameSession?.status === 'waiting' ? '#ffd700' : '#4CAF50' }}>
-              {gameSession?.status || '不明'}
+              {gameSession?.status === 'waiting' ? '待機中' : gameSession?.status || '不明'}
             </span>
           </div>
-          {isPolling && (
-            <div style={{ marginTop: '10px', color: '#ffd700' }}>
-              🔄 セッション情報を監視中... (3秒間隔)
-            </div>
-          )}
         </div>
 
         {getPlayerCount() < 2 && (
           <div className="waiting-message">
-            <h3>🔄 相手を待っています...</h3>
+            <h3>相手を待っています...</h3>
             <p>同じ合言葉「{passcode}」を入力した相手が参加するまでお待ちください。</p>
             <div className="spinner"></div>
             
             {!isPolling && (
               <button 
                 onClick={() => {
-                  addLog('🔄 手動でセッション情報を更新します');
                   fetchGameSession();
                 }}
                 style={{ 
                   marginTop: '15px',
-                  backgroundColor: '#2196F3', 
-                  color: 'white', 
+                  backgroundColor: 'white', 
+                  color: 'black', 
                   padding: '8px 16px', 
-                  border: 'none', 
+                  border: '1px solid #ccc', 
                   borderRadius: '4px',
                   cursor: 'pointer'
                 }}
               >
-                📊 セッション情報を更新
+                セッション情報を更新
               </button>
             )}
           </div>
         )}
 
         {getPlayerCount() === 2 && gameSession?.status === 'waiting' && (
-          <div className="ready-message">
-            <h3>✅ 2人揃いました！</h3>
-            <p>WebSocket接続を行ってゲームを開始してください</p>
+          <div className="connection-controls" style={{ marginTop: '20px', textAlign: 'center' }}>
+            {connectionStatus === 'disconnected' && (
+              <button 
+                onClick={() => {
+                  connectWebSocket();
+                }} 
+                style={{ 
+                  backgroundColor: '#4CAF50', 
+                  color: 'white', 
+                  padding: '15px 30px', 
+                  border: 'none', 
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontSize: '18px',
+                  fontWeight: 'bold',
+                  boxShadow: '0 4px 8px rgba(0,0,0,0.2)'
+                }}
+              >
+                準備完了
+              </button>
+            )}
             
-            <div className="connection-controls" style={{ marginTop: '20px', padding: '15px', backgroundColor: '#2a2a2a', borderRadius: '8px' }}>
-              <div style={{ marginBottom: '10px' }}>
-                <strong>WebSocket接続状態: </strong>
-                {getConnectionStatusDisplay()}
+            {connectionStatus === 'connecting' && (
+              <div style={{ padding: '15px 30px' }}>
+                <div style={{ color: '#ffaa00', fontSize: '18px', fontWeight: 'bold' }}>
+                  接続中...
+                </div>
               </div>
-              
-              {connectionStatus === 'disconnected' && (
-                <div>
-                  <p style={{ color: '#ffd700', fontSize: '14px', marginBottom: '10px' }}>
-                    ⚠️ ゲーム開始にはWebSocket接続が必要です
-                  </p>
-                  <button 
-                    onClick={() => {
-                      addLog(`🔄 手動WebSocket接続開始`);
-                      connectWebSocket();
-                    }} 
-                    style={{ 
-                      backgroundColor: '#4CAF50', 
-                      color: 'white', 
-                      padding: '12px 24px', 
-                      border: 'none', 
-                      borderRadius: '6px',
-                      cursor: 'pointer',
-                      fontSize: '16px',
-                      fontWeight: 'bold'
-                    }}
-                  >
-                    🚀 WebSocket接続開始
-                  </button>
+            )}
+            
+            {connectionStatus === 'connected' && (
+              <div style={{ padding: '15px 30px' }}>
+                <div style={{ color: '#4CAF50', fontSize: '18px', fontWeight: 'bold' }}>
+                  準備完了
                 </div>
-              )}
-              
-              {connectionStatus === 'connecting' && (
-                <div style={{ color: '#ffaa00' }}>
-                  <p>🔄 WebSocket接続中...</p>
+                <div style={{ fontSize: '14px', color: '#ccc', marginTop: '5px' }}>
+                  ゲーム開始をお待ちください
                 </div>
-              )}
-              
-              {connectionStatus === 'connected' && (
-                <div style={{ color: '#4CAF50' }}>
-                  <p>✅ WebSocket接続完了！ゲーム開始を待機中...</p>
-                  <p style={{ fontSize: '14px', color: '#ccc' }}>
-                    サーバーがゲームを開始するまでお待ちください
-                  </p>
-                </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         )}
 
         <div className="controls">
           <button onClick={onReturnToEntry} className="back-button">
-            ← 戻る
+            戻る
           </button>
           <button 
             onClick={async () => {
-              const confirmDelete = window.confirm(`セッション「${passcode}」を削除しますか？\n\n⚠️ 注意: 両方のプレイヤーが切断されます。`);
+              const confirmDelete = window.confirm(`セッション「${passcode}」を削除しますか？\n\n注意: 両方のプレイヤーが切断されます。`);
               if (confirmDelete) {
-                addLog('🗑️ セッションを削除します...');
                 try {
                   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/game/room/passcode/${passcode}/delete`, {
                     method: 'DELETE',
@@ -512,37 +465,49 @@ export default function WaitingRoom({
                   });
 
                   if (response.ok) {
-                    const result = await response.json();
-                    addLog(`✅ ${result.message}`);
                     setConnectionStatus('disconnected');
                     onReturnToEntry();
-                  } else {
-                    const error = await response.json();
-                    addLog(`❌ セッション削除エラー: ${error.error}`);
                   }
                 } catch (error) {
-                  addLog(`❌ セッション削除に失敗しました: ${error}`);
+                  // エラーハンドリング（ログなし）
                 }
               }
             }} 
             className="delete-button"
-            style={{ backgroundColor: '#ff6b6b', color: 'white', margin: '0 10px' }}
+            style={{ 
+              backgroundColor: 'white', 
+              color: 'black', 
+              margin: '0 10px',
+              border: '1px solid #ccc',
+              borderRadius: '4px',
+              padding: '8px 16px',
+              cursor: 'pointer'
+            }}
           >
-            🗑️ セッション削除
+            セッション削除
           </button>
           {connectionStatus === 'disconnected' && (
             <button 
               onClick={() => {
-                addLog(`再接続開始: testUserId=${testUserId}, authToken=${authToken ? 'あり' : 'なし'}`);
                 connectWebSocket();
               }} 
               className="reconnect-button"
+              style={{ 
+                backgroundColor: 'white', 
+                color: 'black', 
+                border: '1px solid #ccc',
+                borderRadius: '4px',
+                padding: '8px 16px',
+                cursor: 'pointer'
+              }}
             >
-              🔄 WebSocket再接続
+              再接続
             </button>
           )}
         </div>
 
+        {/* ログセクションを非表示 */}
+        {/* 
         <div className="logs-section">
           <h4>📋 ログ</h4>
           <div className="logs">
@@ -551,6 +516,7 @@ export default function WaitingRoom({
             ))}
           </div>
         </div>
+        */}
       </div>
     </div>
   );

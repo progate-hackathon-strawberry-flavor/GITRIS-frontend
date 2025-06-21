@@ -56,32 +56,24 @@ export default function TetrisGame() {
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<'disconnected' | 'connecting' | 'connected'>('disconnected');
 
-  // WebSocket cleanup - コンポーネントアンマウント時のみ
   useEffect(() => {
     return () => {
-      console.log('🔌 TetrisGame コンポーネントアンマウント時WebSocket切断');
-      if (socket && socket.readyState === WebSocket.OPEN) {
+      if (socket) {
         socket.close();
       }
     };
-  }, []); // socketを依存配列から除去
+  }, [socket]);
 
   const handlePasscodeSubmit = (passcode: string) => {
-    console.log(`📝 Passcode submitted: ${passcode}`);
     setPasscode(passcode);
     setGamePhase('waiting');
   };
 
   const handleGameStart = () => {
-    console.log('🎮 ゲーム開始処理 - フェーズをplayingに変更');
-    console.log(`📊 現在のWebSocket状態: ${socket ? socket.readyState : 'null'}`);
     setGamePhase('playing');
   };
 
   const handleGameEnd = (result: GameResult) => {
-    console.log('🏁 ゲーム終了処理開始');
-    console.log(`📊 結果: ${JSON.stringify(result)}`);
-    
     setGameResult(result);
     setGamePhase('game_over');
     
@@ -94,20 +86,14 @@ export default function TetrisGame() {
   };
 
   const handleReturnToEntry = () => {
-    console.log('↩️ エントリー画面に戻る処理開始');
-    
-    // WebSocket接続を切断
-    if (socket && socket.readyState === WebSocket.OPEN) {
-      console.log('🔌 エントリー戻り時WebSocket切断');
-      socket.close();
-    }
-    
-    // 状態をリセット
     setPasscode('');
     setGameSession(null);
     setGameResult(null);
     setGamePhase('passcode_entry');
-    setSocket(null);
+    if (socket) {
+      socket.close();
+      setSocket(null);
+    }
     setConnectionStatus('disconnected');
   };
 

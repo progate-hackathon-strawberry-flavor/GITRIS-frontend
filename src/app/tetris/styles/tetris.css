@@ -2,7 +2,7 @@
 
 /* Global Styles */
 .tetris-app {
-  font-family: Arial, sans-serif;
+  font-family: 'DotGothic16', monospace, sans-serif;
   background: var(--background);
   color: var(--foreground);
   min-height: 100vh;
@@ -26,13 +26,13 @@
 .passcode-card,
 .waiting-card,
 .game-over-card {
-  background: rgba(47, 58, 66, 0.8); /* 背景色をベースにした半透明 */
-  border: 2px solid #333;
-  border-radius: 15px;
-  padding: 30px;
-  max-width: 600px;
+  background: transparent; /* 背景色を透明に */
+  border: none; /* ボーダーを削除 */
+  border-radius: 0; /* border-radiusを削除 */
+  padding: 20px;
+  max-width: 1000px; /* より横に広々と */
   margin: 0 auto;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  box-shadow: none; /* box-shadowを削除 */
 }
 
 /* Passcode Entry Styles */
