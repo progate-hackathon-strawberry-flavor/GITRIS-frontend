@@ -616,20 +616,14 @@ export default function DeckMain() {
       }}
     >
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');`}</style>
-      <h1
-        className="text-4xl font-bold mb-8"
-        style={{ color: UI_COLORS.lightText }}
-      >
+      <h1 className="text-4xl font-bold mb-8" style={{ color: UI_COLORS.lightText }}>
         GitHub 草テトリス：デッキ編成
       </h1>
 
-      <div className="bg-gray-800 p-6 rounded-xl shadow-lg mb-8 w-full max-w-4xl flex justify-between items-start flex-wrap">
-        {/* テトリミノパレット */}
-        <div className="w-full md:w-1/4 mb-6 md:mb-0">
-          <h2
-            className="text-2xl font-semibold mb-4"
-            style={{ color: UI_COLORS.lightText }}
-          >
+      <div className="bg-gray-800 p-6 rounded-xl shadow-lg mb-8 w-full max-w-5xl flex flex-col lg:flex-row justify-between items-start">
+        {/* パレット */}
+        <div className="w-full lg:w-1/4 mb-6 lg:mb-0">
+          <h2 className="text-2xl font-semibold mb-4" style={{ color: UI_COLORS.lightText }}>
             テトリミノパレット
           </h2>
           <div className="grid grid-cols-2 gap-4">
@@ -638,82 +632,64 @@ export default function DeckMain() {
               return (
                 <div
                   key={type}
-                  className={`p-3 bg-gray-700 rounded-lg flex flex-col items-center justify-center transition-all ${
+                  className={`p-2 rounded-lg flex flex-col items-center justify-center transition-all ${
                     isPlaced
                       ? "opacity-40 cursor-not-allowed"
-                      : "cursor-grab hover:scale-105"
+                      : "cursor-grab hover:bg-gray-700 hover:scale-105"
                   }`}
                   draggable={!isPlaced}
                   onDragStart={(e) => handlePaletteDragStart(e, type)}
+                  title={`${type}-ミノ`}
                 >
                   <div
                     className="grid gap-px"
                     style={{ gridTemplateColumns: `repeat(4, 12px)` }}
                   >
-                    {Array.from({ length: 4 }).map((_, r) =>
-                      Array.from({ length: 4 }).map((__, c) => (
+                    {Array.from({ length: 16 }).map((_, i) => {
+                      const c = i % 4;
+                      const r = Math.floor(i / 4);
+                      const isBlock = TETROMINO_SHAPES[type].some(
+                        ([x, y]) => x === c && y === r
+                      );
+                      return (
                         <div
-                          key={`${type}-${r}-${c}`}
-                          className="w-3 h-3 rounded-sm"
+                          key={i}
+                          className="rounded-sm"
                           style={{
-                            backgroundColor: "transparent",
-                            border: TETROMINO_SHAPES[
-                              type as keyof typeof TETROMINO_SHAPES
-                            ].some(([x, y]) => x === c && y === r)
-                              ? `1px solid ${
-                                  TETROMINO_COLORS[
-                                    type as keyof typeof TETROMINO_COLORS
-                                  ][0]
-                                }`
-                              : "none",
+                            width: "12px",
+                            height: "12px",
+                            backgroundColor: isBlock
+                              ? TETROMINO_COLORS[type][0]
+                              : "transparent",
                           }}
-                        ></div>
-                      ))
-                    )}
+                        />
+                      );
+                    })}
                   </div>
-                  <span
-                    className="text-sm mt-2 font-bold"
-                    style={{ color: UI_COLORS.lightText }}
-                  >
-                    {type}-ミノ
-                  </span>
                 </div>
               );
             })}
           </div>
         </div>
-        {/* グリッドとスコア表示 */}
-        <div className="w-full md:w-3/4 flex flex-col items-center">
+
+        {/* グリッド・スコア・ボタン */}
+        <div className="w-full lg:w-3/4 flex flex-col items-center lg:pl-6">
           <div className="w-full flex justify-between items-center mb-4">
-            <h2
-              className="text-2xl font-semibold"
-              style={{ color: UI_COLORS.lightText }}
-            >
+            <h2 className="text-2xl font-semibold" style={{ color: UI_COLORS.lightText }}>
               GitHub草グリッド (8x7)
             </h2>
-            < GetContributionsButton/>
-            {/*<button
-              onClick={fetchContributions}
-              disabled={loading}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg disabled:bg-gray-500"
-            >
-              {loading ? "取得中..." : "データ再取得"}
-            </button>/}*/}
+            <GetContributionsButton />
           </div>
-
-          {/* メッセージボックス */}
           {message && (
-            <div className="bg-blue-500 text-white px-4 py-2 rounded-lg mb-4 text-center">
+            <div className="bg-blue-500 text-white px-4 py-2 rounded-lg mb-4 text-center w-full">
               {message}
             </div>
           )}
           {error && (
-            <div className="bg-red-500 text-white px-4 py-2 rounded-lg mb-4 text-center">
+            <div className="bg-red-500 text-white px-4 py-2 rounded-lg mb-4 text-center w-full">
               エラー: {error}
             </div>
           )}
-
-          {/* ポテンシャルスコア */}
           <div
             className="text-4xl font-bold mb-6 p-4 rounded-xl"
             style={{
@@ -723,9 +699,7 @@ export default function DeckMain() {
             }}
           >
             ポテンシャルスコア:{" "}
-            <span style={{ color: UI_COLORS.brightGreen }}>
-              {potentialScore}
-            </span>
+            <span style={{ color: UI_COLORS.brightGreen }}>{potentialScore}</span>
           </div>
           <div className="mb-4">
             <SaveDeckButton
@@ -751,7 +725,7 @@ export default function DeckMain() {
             />
           </div>
 
-          {/* メイングリッド */}
+          {/* グリッド */}
           <div
             ref={gridRef}
             className="relative grid rounded-lg shadow-inner bg-black"
@@ -767,126 +741,122 @@ export default function DeckMain() {
                 <p className="text-white text-2xl">Loading...</p>
               </div>
             ) : (
-              contributionGrid.length > 0 &&
-              Array.from({ length: GRID_HEIGHT }).map((_, y) =>
-                Array.from({ length: GRID_WIDTH }).map((__, x) => {
-                  const level = contributionGrid[y]?.[x]?.level ?? 0;
-                  return (
-                    <div
-                      key={`${x}-${y}`}
-                      className="w-9 h-9 rounded-sm box-border"
-                      style={{
-                        backgroundColor: getGrassColorFromLevel(level),
-                        border: `1px solid ${UI_COLORS.darkBackground}`,
-                      }}
-                    />
-                  );
-                })
-              )
+              Array.from({ length: GRID_HEIGHT * GRID_WIDTH }).map((_, i) => {
+                const x = i % GRID_WIDTH;
+                const y = Math.floor(i / GRID_WIDTH);
+                const level = contributionGrid[y]?.[x]?.level ?? 0;
+                return (
+                  <div
+                    key={`${x}-${y}`}
+                    className="w-9 h-9 rounded-sm box-border"
+                    style={{
+                      backgroundColor: getGrassColorFromLevel(level),
+                      border: `1px solid ${UI_COLORS.darkBackground}`,
+                    }}
+                  />
+                );
+              })
             )}
 
-            {/* 配置されたテトリミノを絶対位置でレンダリング */}
+            {/* テトリミノ描画 */}
             {placedTetrominos.map((tetrimino) => {
-              const pos = tetrimino?.absolutePositions;
-              if (!pos || pos.length === 0) return null;
-              const xs = pos.map((p: number[]) => p[0]);
-              const ys = pos.map((p: number[]) => p[1]);
-              if (xs.some((v) => !isFinite(v)) || ys.some((v) => !isFinite(v)))
-                return null;
+              const { blockDetails, type, id, x, y } = tetrimino;
+              if (!blockDetails) return null;
 
-              // テトリミノのバウンディングボックスの最小/最大座標を計算
-              const minX = Math.min(...xs);
-              const minY = Math.min(...ys);
-              const widthPx = (Math.max(...xs) - minX + 1) * CELL_PX_SIZE;
-              const heightPx = (Math.max(...ys) - minY + 1) * CELL_PX_SIZE;
-              const leftPx = minX * CELL_PX_SIZE;
-              const topPx = minY * CELL_PX_SIZE;
-              if (
-                !isFinite(leftPx) ||
-                !isFinite(topPx) ||
-                widthPx < 0 ||
-                heightPx < 0
-              )
-                return null;
+              const leftPx = x * CELL_PX_SIZE;
+              const topPx = y * CELL_PX_SIZE;
+
               return (
                 <div
-                  key={tetrimino.id}
+                  key={id}
                   draggable
-                  onDragStart={(e) =>
-                    handlePlacedTetrominoDragStart(e, tetrimino.id)
-                  }
-                  className="absolute cursor-grab rounded-md group"
+                  onDragStart={(e) => handlePlacedTetrominoDragStart(e, id)}
+                  className="absolute cursor-grab group"
                   style={{
                     left: `${leftPx}px`,
                     top: `${topPx}px`,
-                    width: `${widthPx}px`,
-                    height: `${heightPx}px`,
+                    width: `${CELL_PX_SIZE * 4}px`,
+                    height: `${CELL_PX_SIZE * 4}px`,
                     zIndex: 20,
                   }}
                 >
-                  {/* 各テトリミノブロックの描画 */}
-                  {tetrimino.blockDetails.map((block: any) => {
-                    const blockLeft = (block.x - minX) * CELL_PX_SIZE;
-                    const blockTop = (block.y - minY) * CELL_PX_SIZE;
-                    if (!isFinite(blockLeft) || !isFinite(blockTop))
-                      return null;
+                  {/* テトリミノ本体 */}
+                  {blockDetails.map((block: any, index: number) => {
+                    const relativeX = block.x - x;
+                    const relativeY = block.y - y;
                     return (
                       <div
-                        key={`${tetrimino.id}-${block.x}-${block.y}`}
+                        key={`${id}-${index}-solid`}
                         className="absolute w-9 h-9 rounded-sm box-border"
                         style={{
-                          left: `${blockLeft}px`,
-                          top: `${blockTop}px`,
+                          left: `${relativeX * CELL_PX_SIZE}px`,
+                          top: `${relativeY * CELL_PX_SIZE}px`,
                           backgroundColor:
-                            TETROMINO_COLORS[
-                              tetrimino.type as keyof typeof TETROMINO_COLORS
-                            ][block.colorIndex] ?? UI_COLORS.darkBackground,
+                            TETROMINO_COLORS[type][block.colorIndex] ??
+                            UI_COLORS.darkBackground,
                           border: "1px solid rgba(255,255,255,0.2)",
                         }}
                       />
                     );
                   })}
-
-                  {/* 回転・削除ボタンのオーバーレイ */}
-                  <div className="absolute inset-0 flex items-center justify-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button
-                      onClick={() => handleRotate(tetrimino.id)}
-                      className="bg-blue-600 text-white p-1 rounded-full shadow-md hover:bg-blue-700"
-                      title="回転"
-                    >
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
+                  {/* ホバー時のオーバーレイとボタン */}
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {/* テトリミノの形に合わせた影 */}
+                    {blockDetails.map((block: any, index: number) => {
+                      const relativeX = block.x - x;
+                      const relativeY = block.y - y;
+                      return (
+                        <div
+                          key={`${id}-${index}-overlay`}
+                          className="absolute w-9 h-9 rounded-sm bg-black bg-opacity-50"
+                          style={{
+                            left: `${relativeX * CELL_PX_SIZE}px`,
+                            top: `${relativeY * CELL_PX_SIZE}px`,
+                          }}
+                        />
+                      );
+                    })}
+                    {/* 影の上に表示されるボタン */}
+                    <div className="absolute inset-0 flex items-center justify-center space-x-1">
+                      <button
+                        onClick={() => handleRotate(id)}
+                        className="bg-blue-600 text-white p-1.5 rounded-full shadow-md hover:bg-blue-700"
+                        title="回転"
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004 12c0 2.21.894 4.204 2.343 5.657M18 19v-5h-.582m0 0a8.001 8.001 0 01-15.356-2m15.356 2c-.065.311-.083.63-.058.95L18 19z"
-                        ></path>
-                      </svg>
-                    </button>
-                    <button
-                      onClick={() => handleDelete(tetrimino.id)}
-                      className="bg-red-600 text-white p-1 rounded-full shadow-md hover:bg-red-700"
-                      title="削除"
-                    >
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004 12c0 2.21.894 4.204 2.343 5.657M18 19v-5h-.582m0 0a8.001 8.001 0 01-15.356-2m15.356 2c-.065.311-.083.63-.058.95L18 19z"
+                          ></path>
+                        </svg>
+                      </button>
+                      <button
+                        onClick={() => handleDelete(id)}
+                        className="bg-red-600 text-white p-1.5 rounded-full shadow-md hover:bg-red-700"
+                        title="削除"
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                        ></path>
-                      </svg>
-                    </button>
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                          ></path>
+                        </svg>
+                      </button>
+                    </div>
                   </div>
                 </div>
               );
