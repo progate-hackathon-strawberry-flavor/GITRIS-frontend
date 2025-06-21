@@ -3,8 +3,8 @@
 /* Global Styles */
 .tetris-app {
   font-family: Arial, sans-serif;
-  background: #1a1a1a;
-  color: #fff;
+  background: var(--background);
+  color: var(--foreground);
   min-height: 100vh;
   padding: 20px;
 }
@@ -16,7 +16,7 @@
 
 .tetris-title {
   text-align: center;
-  color: #4ecdc4;
+  color: var(--gitris-bright-green);
   text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
   margin-bottom: 30px;
   font-size: 2.5rem;
@@ -26,7 +26,7 @@
 .passcode-card,
 .waiting-card,
 .game-over-card {
-  background: #2a2a2a;
+  background: rgba(47, 58, 66, 0.8); /* 背景色をベースにした半透明 */
   border: 2px solid #333;
   border-radius: 15px;
   padding: 30px;
@@ -49,7 +49,7 @@
 }
 
 .passcode-header h2 {
-  color: #4ecdc4;
+  color: var(--gitris-bright-green);
   margin-bottom: 10px;
 }
 
@@ -69,7 +69,7 @@
 .input-group label {
   display: block;
   margin-bottom: 8px;
-  color: #4ecdc4;
+  color: var(--gitris-bright-green);
   font-weight: bold;
 }
 
@@ -79,23 +79,23 @@
   border: 2px solid #555;
   border-radius: 8px;
   background: #333;
-  color: #fff;
+  color: var(--foreground);
   font-size: 1.1rem;
   transition: border-color 0.3s;
 }
 
 .input-group input:focus {
   outline: none;
-  border-color: #4ecdc4;
-  box-shadow: 0 0 10px rgba(78, 205, 196, 0.3);
+  border-color: var(--gitris-bright-green);
+  box-shadow: 0 0 10px rgba(86, 211, 100, 0.3);
 }
 
 .input-group input.error {
-  border-color: #e74c3c;
+  border-color: var(--tetromino-z-1);
 }
 
 .error-message {
-  color: #e74c3c;
+  color: var(--tetromino-z-1);
   font-size: 0.9rem;
   margin-top: 5px;
   display: block;
@@ -104,7 +104,7 @@
 .enter-button {
   width: 100%;
   padding: 15px;
-  background: linear-gradient(135deg, #4ecdc4, #44b3a8);
+  background: linear-gradient(135deg, var(--gitris-dark-green), var(--gitris-bright-green));
   color: white;
   border: none;
   border-radius: 8px;
@@ -115,9 +115,9 @@
 }
 
 .enter-button:hover {
-  background: linear-gradient(135deg, #44b3a8, #3a9590);
+  background: linear-gradient(135deg, #218838, var(--gitris-dark-green));
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(78, 205, 196, 0.4);
+  box-shadow: 0 6px 20px rgba(45, 160, 66, 0.4);
 }
 
 .instructions {
@@ -125,7 +125,7 @@
 }
 
 .instructions h3 {
-  color: #4ecdc4;
+  color: var(--gitris-bright-green);
   margin-bottom: 15px;
   font-size: 1.1rem;
 }
@@ -146,7 +146,7 @@
 }
 
 .passcode-examples h4 {
-  color: #4ecdc4;
+  color: var(--gitris-bright-green);
   margin-bottom: 15px;
 }
 
@@ -159,7 +159,7 @@
 
 .example-tag {
   background: #444;
-  color: #fff;
+  color: var(--foreground);
   padding: 8px 15px;
   border-radius: 20px;
   cursor: pointer;
@@ -168,8 +168,8 @@
 }
 
 .example-tag:hover {
-  background: #4ecdc4;
-  color: #000;
+  background: var(--gitris-bright-green);
+  color: var(--background);
   transform: translateY(-1px);
 }
 
@@ -187,7 +187,7 @@
 }
 
 .waiting-header h2 {
-  color: #4ecdc4;
+  color: var(--gitris-bright-green);
   margin-bottom: 10px;
 }
 
@@ -494,21 +494,84 @@
 }
 
 /* Tetris Piece Colors */
-.cell.type-0 { background: #4ecdc4; } /* I - シアン */
-.cell.type-1 { background: #feca57; } /* O - 黄 */
-.cell.type-2 { background: #9b59b6; } /* T - 紫 */
-.cell.type-3 { background: #2ecc71; } /* S - 緑 */
-.cell.type-4 { background: #e74c3c; } /* Z - 赤 */
-.cell.type-5 { background: #3498db; } /* J - 青 */
-.cell.type-6 { background: #f39c12; } /* L - オレンジ */
+/* テトリミノの基本色（中間の明るさ） */
+.cell.type-0 { background: var(--tetromino-i-3); } /* I - シアン */
+.cell.type-1 { background: var(--tetromino-o-3); } /* O - 黄 */
+.cell.type-2 { background: var(--tetromino-t-3); } /* T - オレンジ */
+.cell.type-3 { background: var(--tetromino-s-3); } /* S - 緑 */
+.cell.type-4 { background: var(--tetromino-z-3); } /* Z - 赤 */
+.cell.type-5 { background: var(--tetromino-j-3); } /* J - 青 */
+.cell.type-6 { background: var(--tetromino-l-3); } /* L - 紫 */
 
-/* Score-based color intensity */
-.cell.score-low { filter: brightness(0.6); }
-.cell.score-medium { filter: brightness(0.8); }
-.cell.score-high { filter: brightness(1.0); }
-.cell.score-very-high {
-  filter: brightness(1.3) saturate(1.2);
-  box-shadow: 0 0 4px rgba(255, 255, 255, 0.5);
+/* 貢献度スコアに基づく詳細な色指定 */
+/* Iミノ (シアン系) 貢献度別色 */
+.cell.type-0.score-very-low { background: var(--tetromino-i-5); }
+.cell.type-0.score-low { background: var(--tetromino-i-4); }
+.cell.type-0.score-medium { background: var(--tetromino-i-3); }
+.cell.type-0.score-high { background: var(--tetromino-i-2); }
+.cell.type-0.score-very-high { 
+  background: var(--tetromino-i-1); 
+  box-shadow: 0 0 8px rgba(91, 227, 182, 0.5);
+}
+
+/* Oミノ (黄色系) 貢献度別色 */
+.cell.type-1.score-very-low { background: var(--tetromino-o-5); }
+.cell.type-1.score-low { background: var(--tetromino-o-4); }
+.cell.type-1.score-medium { background: var(--tetromino-o-3); }
+.cell.type-1.score-high { background: var(--tetromino-o-2); }
+.cell.type-1.score-very-high { 
+  background: var(--tetromino-o-1); 
+  box-shadow: 0 0 8px rgba(242, 229, 48, 0.5);
+}
+
+/* Tミノ (オレンジ系) 貢献度別色 */
+.cell.type-2.score-very-low { background: var(--tetromino-t-5); }
+.cell.type-2.score-low { background: var(--tetromino-t-4); }
+.cell.type-2.score-medium { background: var(--tetromino-t-3); }
+.cell.type-2.score-high { background: var(--tetromino-t-2); }
+.cell.type-2.score-very-high { 
+  background: var(--tetromino-t-1); 
+  box-shadow: 0 0 8px rgba(242, 135, 7, 0.5);
+}
+
+/* Sミノ (緑系) 貢献度別色 */
+.cell.type-3.score-very-low { background: var(--tetromino-s-5); }
+.cell.type-3.score-low { background: var(--tetromino-s-4); }
+.cell.type-3.score-medium { background: var(--tetromino-s-3); }
+.cell.type-3.score-high { background: var(--tetromino-s-2); }
+.cell.type-3.score-very-high { 
+  background: var(--tetromino-s-1); 
+  box-shadow: 0 0 8px rgba(110, 242, 48, 0.5);
+}
+
+/* Zミノ (赤系) 貢献度別色 */
+.cell.type-4.score-very-low { background: var(--tetromino-z-5); }
+.cell.type-4.score-low { background: var(--tetromino-z-4); }
+.cell.type-4.score-medium { background: var(--tetromino-z-3); }
+.cell.type-4.score-high { background: var(--tetromino-z-2); }
+.cell.type-4.score-very-high { 
+  background: var(--tetromino-z-1); 
+  box-shadow: 0 0 8px rgba(242, 48, 100, 0.5);
+}
+
+/* Jミノ (青系) 貢献度別色 */
+.cell.type-5.score-very-low { background: var(--tetromino-j-5); }
+.cell.type-5.score-low { background: var(--tetromino-j-4); }
+.cell.type-5.score-medium { background: var(--tetromino-j-3); }
+.cell.type-5.score-high { background: var(--tetromino-j-2); }
+.cell.type-5.score-very-high { 
+  background: var(--tetromino-j-1); 
+  box-shadow: 0 0 8px rgba(0, 102, 255, 0.5);
+}
+
+/* Lミノ (紫系) 貢献度別色 */
+.cell.type-6.score-very-low { background: var(--tetromino-l-5); }
+.cell.type-6.score-low { background: var(--tetromino-l-4); }
+.cell.type-6.score-medium { background: var(--tetromino-l-3); }
+.cell.type-6.score-high { background: var(--tetromino-l-2); }
+.cell.type-6.score-very-high { 
+  background: var(--tetromino-l-1); 
+  box-shadow: 0 0 8px rgba(185, 99, 242, 0.5);
 }
 
 .cell.current {
@@ -548,15 +611,15 @@
   display: block;
   font-size: 1.1rem;
   font-weight: bold;
-  color: #4ecdc4;
+  color: var(--gitris-bright-green);
 }
 
 .stat-value.game-over {
-  color: #e74c3c;
+  color: var(--tetromino-z-1);
 }
 
 .stat-value.playing {
-  color: #2ecc71;
+  color: var(--tetromino-s-2);
 }
 
 .mini-boards {
@@ -596,13 +659,14 @@
   background: #111;
 }
 
-.mini-cell.type-0 { background: #4ecdc4; }
-.mini-cell.type-1 { background: #feca57; }
-.mini-cell.type-2 { background: #9b59b6; }
-.mini-cell.type-3 { background: #2ecc71; }
-.mini-cell.type-4 { background: #e74c3c; }
-.mini-cell.type-5 { background: #3498db; }
-.mini-cell.type-6 { background: #f39c12; }
+/* ミニボード用テトリミノ色（中間の明るさ） */
+.mini-cell.type-0 { background: var(--tetromino-i-3); }
+.mini-cell.type-1 { background: var(--tetromino-o-3); }
+.mini-cell.type-2 { background: var(--tetromino-t-3); }
+.mini-cell.type-3 { background: var(--tetromino-s-3); }
+.mini-cell.type-4 { background: var(--tetromino-z-3); }
+.mini-cell.type-5 { background: var(--tetromino-j-3); }
+.mini-cell.type-6 { background: var(--tetromino-l-3); }
 
 /* Game Sidebar */
 .game-sidebar {
@@ -618,7 +682,7 @@
 
 /* Game Controls */
 .game-controls h4 {
-  color: #4ecdc4;
+  color: var(--gitris-bright-green);
   margin-bottom: 15px;
 }
 
@@ -630,7 +694,7 @@
 
 .control-button {
   padding: 12px;
-  background: #007bff;
+  background: var(--gitris-dark-green);
   color: white;
   border: none;
   border-radius: 5px;
@@ -641,7 +705,7 @@
 }
 
 .control-button:hover {
-  background: #0056b3;
+  background: #218838;
   transform: translateY(-2px);
 }
 
@@ -650,7 +714,7 @@
 }
 
 .control-help h4 {
-  color: #4ecdc4;
+  color: var(--gitris-bright-green);
   margin-bottom: 10px;
 }
 
@@ -684,7 +748,7 @@
 }
 
 .result-title {
-  color: #4ecdc4;
+  color: var(--gitris-bright-green);
   margin-bottom: 10px;
 }
 
@@ -748,7 +812,7 @@
 }
 
 .game-stats h3 {
-  color: #4ecdc4;
+  color: var(--gitris-bright-green);
   text-align: center;
   margin-bottom: 20px;
 }
@@ -766,7 +830,7 @@
 }
 
 .stats-column h4 {
-  color: #4ecdc4;
+  color: var(--gitris-bright-green);
   margin-bottom: 15px;
   text-align: center;
 }
@@ -799,7 +863,7 @@
 }
 
 .play-again-button {
-  background: #28a745;
+  background: var(--gitris-dark-green);
   color: white;
 }
 
@@ -812,7 +876,7 @@
 }
 
 .sharing-section h4 {
-  color: #4ecdc4;
+  color: var(--gitris-bright-green);
   margin-bottom: 15px;
 }
 
@@ -824,7 +888,7 @@
 
 .share-button {
   padding: 10px 15px;
-  background: #17a2b8;
+  background: var(--gitris-dark-green);
   color: white;
   border: none;
   border-radius: 5px;
@@ -834,7 +898,7 @@
 }
 
 .share-button:hover {
-  background: #138496;
+  background: #218838;
 }
 
 /* Loading State */
@@ -847,7 +911,7 @@
 }
 
 .game-loading h2 {
-  color: #4ecdc4;
+  color: var(--gitris-bright-green);
 }
 
 /* Responsive Design */
