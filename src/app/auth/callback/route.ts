@@ -6,7 +6,9 @@ export async function GET(request: Request) {
   const forwardedHost = request.headers.get('x-forwarded-host')
   const protocol = 'https://'
   const url = new URL(request.url)
-  const origin = forwardedHost ? `${protocol}${forwardedHost}` : url.origin
+  // process.env.NEXT_PUBLIC_APP_URL を優先
+  const envOrigin = process.env.NEXT_PUBLIC_APP_URL
+  const origin = envOrigin ? envOrigin : (forwardedHost ? `${protocol}${forwardedHost}` : url.origin)
   const searchParams = url.searchParams
   const code = searchParams.get('code')
   const next = searchParams.get('next') ?? '/'
