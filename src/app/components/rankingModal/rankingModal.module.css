@@ -1,0 +1,100 @@
+/* src/app/components/rankingModal.module.css */
+
+/* モーダルの背景オーバーレイ - helpModal.module.cssと共通なので、共通CSSにまとめることも可能 */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.7); /* 半透明の黒 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* 他の要素より手前に表示 */
+}
+
+/* モーダルコンテンツのコンテナ */
+.modalContent {
+  background-color: #151b23; /* 背景/テキストの濃い色  */
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  color: #f0f5fa; /* 背景/テキストの明るい色  */
+  font-family: 'DotGothic16', sans-serif;
+  width: 80%; /* 幅を調整 */
+  max-width: 600px; /* 最大幅 */
+  position: relative;
+}
+
+/* 戻るボタンのスタイル */
+.backButton {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  background-color: transparent;
+  border: none;
+  font-size: 2em; /* 三角のサイズ */
+  color: #56d364; /* メインの明るい緑  */
+  cursor: pointer;
+}
+
+/* モーダルのタイトル */
+.modalTitle {
+  font-size: 2em; /* 「ランキング」の文字サイズ */
+  font-weight: bold;
+  color: #56d364; /* メインの明るい緑  */
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* ランキングテーブルのコンテナ */
+.rankingTable {
+  width: 100%;
+  border-collapse: collapse; /* セルの境界線を結合 */
+  margin-top: 20px;
+}
+
+/* テーブルヘッダーのスタイル */
+.rankingTable th {
+  color: #56d364; /* メインの明るい緑  */
+  font-size: 1.2em;
+  padding-bottom: 10px;
+  text-align: left;
+}
+/* ヘッダーの右寄せ調整 */
+.rankingTable th:last-child {
+  text-align: right;
+}
+
+/* テーブル行のスタイル */
+.rankingTable td {
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(240, 245, 250, 0.2); /* 明るい色の透明度を下げて線にする  */
+  color: #f0f5fa; /* 背景/テキストの明るい色  */
+  font-size: 1.1em;
+  text-align: left;
+}
+/* 最後の行の下線はなし */
+.rankingTable tr:last-child td {
+  border-bottom: none;
+}
+/* 列の右寄せ調整 */
+.rankingTable td:last-child {
+  text-align: right;
+}
+
+/* チャットボタンのスタイル - helpModal.module.cssと共通なので、共通CSSにまとめることも可能 */
+.chatButton {
+  background-color: transparent;
+  border: 2px solid #56d364; /* メインの明るい緑  */
+  color: #56d364; /* メインの明るい緑  */
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 1.5em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

@@ -1,0 +1,74 @@
+/* src/app/components/helpModal.module.css */
+
+/* Google FontsのDotGothic16をインポート */
+@import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
+
+/* モーダルの背景オーバーレイ */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.7); /* 半透明の黒 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* 他の要素より手前に表示 */
+}
+
+/* モーダルコンテンツのコンテナ */
+.modalContent {
+  background-color: #151b23; /* 背景/テキストの濃い色  */
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  color: #f0f5fa; /* 背景/テキストの明るい色  */
+  font-family: 'DotGothic16', sans-serif;
+  width: 80%; /* 幅を調整 */
+  max-width: 600px; /* 最大幅 */
+  position: relative;
+}
+
+/* 戻るボタンのスタイル */
+.backButton {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  background-color: transparent;
+  border: none;
+  font-size: 2em; /* 三角のサイズ */
+  color: #56d364; /* メインの明るい緑  */
+  cursor: pointer;
+}
+
+/* モーダルのタイトル */
+.modalTitle {
+  font-size: 2em; /* 「遊び方」の文字サイズ */
+  font-weight: bold;
+  color: #56d364; /* メインの明るい緑  */
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* 説明テキスト */
+.modalText {
+  font-size: 1.2em;
+  line-height: 1.6;
+  text-align: center;
+}
+
+/* ★追加★ 質問マークボタンのスタイル */
+.questionMarkButton {
+  background-color: transparent;
+  border: 2px solid #56d364; /* メインの明るい緑  */
+  color: #56d364; /* メインの明るい緑  */
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 1.5em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
