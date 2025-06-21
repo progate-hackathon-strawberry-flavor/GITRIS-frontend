@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import SaveDeckButton from "./save-deck";
+import GetContributionsButton from "../../components/connect-github-button";
 
 // --- 型定義 ---
 type Contribution = {
@@ -37,6 +38,9 @@ const TETROMINO_COLORS = {
   J: ["#0066FF", "#005AE2", "#0050C5", "#0043A8", "#00378A"],
   L: ["#B963F2", "#A357D5", "#8D4BB8", "#763F9B", "#60347E"],
 };
+
+const GITHUB_COLORS = ["#151B23", "#023A16", "#196C2E", "#2DA042", "#56D364"]
+  // GitHub草の基本色として利用
 
 // --- テトリミノの形状定義 (相対座標) ---
 const TETROMINO_SHAPES = {
@@ -107,11 +111,10 @@ const CELL_PX_SIZE = 36;
  * @returns {number} レベル (0-4)
  */
 const getContributionLevel = (count: number) => {
-  if (count > 20) return 5;
-  if (count > 10) return 4;
-  if (count > 5) return 3;
-  if (count > 0) return 2;
-  if (count >= 0) return 1;
+  if (count > 20) return 4;
+  if (count > 10) return 3;
+  if (count > 5) return 2;
+  if (count > 0) return 1;
   return 0;
 };
 
@@ -132,7 +135,7 @@ const getScoreFromContributionLevel = (level) => {
 const getGrassColorFromLevel = (level) => {
   if (level === 0) return UI_COLORS.darkBackground;
   // Sミノ（緑系）のカラーパレットを使用。レベル1からインデックス0に対応させる
-  return TETROMINO_COLORS["S"][level - 1] || UI_COLORS.darkBackground;
+  return GITHUB_COLORS[level] || UI_COLORS.darkBackground;
 };
 
 /**
@@ -688,13 +691,14 @@ export default function DeckMain() {
             >
               GitHub草グリッド (8x7)
             </h2>
-            <button
+            < GetContributionsButton/>
+            {/*<button
               onClick={fetchContributions}
               disabled={loading}
               className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg disabled:bg-gray-500"
             >
               {loading ? "取得中..." : "データ再取得"}
-            </button>
+            </button>/}*/}
           </div>
 
           {/* メッセージボックス */}
