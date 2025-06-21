@@ -43,6 +43,31 @@ export default function TetrisGameRoom({
 
   useEffect(() => {
     if (!socket) return;
+    
+    // WebSocket接続状態を確認
+    if (socket.readyState !== WebSocket.OPEN) {
+      addLog(`⚠️ WebSocket接続状態異常: ${socket.readyState} (0=CONNECTING, 1=OPEN, 2=CLOSING, 3=CLOSED)`);
+      
+      // 接続中の場合は待機
+      if (socket.readyState === WebSocket.CONNECTING) {
+        addLog('🔄 WebSocket接続中... 少し待機します');
+        
+        const waitForConnection = () => {
+          if (socket.readyState === WebSocket.OPEN) {
+            addLog('✅ WebSocket接続完了、ゲーム処理を開始します');
+          } else if (socket.readyState === WebSocket.CLOSED || socket.readyState === WebSocket.CLOSING) {
+            addLog('❌ WebSocket接続に失敗しました');
+          } else {
+            // まだ接続中の場合は再度チェック
+            setTimeout(waitForConnection, 100);
+          }
+        };
+        
+        setTimeout(waitForConnection, 100);
+      }
+    } else {
+      addLog('✅ WebSocket接続確認済み、ゲーム処理を開始します');
+    }
 
     const handleMessage = (event: MessageEvent) => {
       // ゲーム終了後はメッセージ処理を停止
