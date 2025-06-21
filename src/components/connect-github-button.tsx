@@ -19,7 +19,8 @@ export default function GetContributionsButton() {
             }
             const userId = user.id;
 
-            const response = await fetch(`http://localhost:8080/api/contributions/refresh/${userId}`, {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+            const response = await fetch(`${apiUrl}/api/contributions/refresh/${userId}`, {
                 method: 'POST',
             });
 

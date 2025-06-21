@@ -190,7 +190,8 @@ export default function DeckMain() {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('ユーザーが認証されていません');
-      const response = await fetch(`http://localhost:8080/api/contributions/${user.id}`);
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+      const response = await fetch(`${apiUrl}/api/contributions/${user.id}`);
 
       if (!response.ok) throw new Error(`APIエラー`);
 

@@ -35,7 +35,8 @@ export default function ContributionsDisplay() {
       }
       const userId = user.id;
 
-      const response = await fetch(`http://localhost:8080/api/contributions/${userId}`);
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+      const response = await fetch(`${apiUrl}/api/contributions/${userId}`);
 
       if (!response.ok) {
         throw new Error(`APIエラー: ${response.status}`);

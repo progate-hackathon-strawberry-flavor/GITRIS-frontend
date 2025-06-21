@@ -17,11 +17,12 @@ export default function AuthButton({ session }: AuthButtonProps) {
 
   // GitHubでサインインする処理
   const handleSignIn = async () => {
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || location.origin;
     await supabase.auth.signInWithOAuth({
       provider: 'github',
       options: {
         // ログイン後にリダイレクトするURL
-        redirectTo: `${location.origin}/auth/callback`,
+        redirectTo: `${appUrl}/auth/callback`,
       },
     })
   }
