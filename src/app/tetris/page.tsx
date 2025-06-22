@@ -7,6 +7,8 @@ import WaitingRoom from './components/WaitingRoom';
 import GameOverScreen from './components/GameOverScreen';
 import './styles/tetris.css';
 
+export const revalidate = false;
+
 export interface GameSession {
   id: string;
   status: 'waiting' | 'playing' | 'finished';
