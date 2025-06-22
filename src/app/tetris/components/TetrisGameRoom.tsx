@@ -5,6 +5,7 @@ import { GameSession, PlayerState, GameResult } from '../page';
 import TetrisBoard from './TetrisBoard';
 import TetrisMiniBoard from './TetrisMiniBoard';
 import GameControls from './GameControls';
+import { useUserDisplayName } from '@/hooks/useAuth';
 
 interface TetrisGameRoomProps {
   gameSession: GameSession | null;
@@ -21,6 +22,10 @@ export default function TetrisGameRoom({
 }: TetrisGameRoomProps) {
   const [logs, setLogs] = useState<string[]>([]);
   const [gameEnded, setGameEnded] = useState<boolean>(false);
+
+  // ユーザー名を取得するフック
+  const { displayName: player1Name } = useUserDisplayName(gameSession?.player1?.user_id || null);
+  const { displayName: player2Name } = useUserDisplayName(gameSession?.player2?.user_id || null);
 
   const addLog = (message: string) => {
     const timestamp = new Date().toLocaleTimeString();
@@ -324,7 +329,7 @@ export default function TetrisGameRoom({
             <div className="player-header">
               <h3>👤 Player 1</h3>
               <span className="player-name">
-                {gameSession.player1?.user_id || 'Empty'}
+                {player1Name}
               </span>
             </div>
             
@@ -377,7 +382,7 @@ export default function TetrisGameRoom({
             <div className="player-header">
               <h3>👤 Player 2</h3>
               <span className="player-name">
-                {gameSession.player2?.user_id || 'Empty'}
+                {player2Name}
               </span>
             </div>
             
