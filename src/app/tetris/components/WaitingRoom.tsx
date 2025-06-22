@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { GameSession } from '../page';
+import { useUserDisplayName } from '@/hooks/useAuth';
+import { createClient } from '@/lib/supabase/client';
 
 interface WaitingRoomProps {
   passcode: string;
@@ -25,18 +27,23 @@ export default function WaitingRoom({
   setSocket,
   setConnectionStatus
 }: WaitingRoomProps) {
-  const { session } = useAuth();
-  const [userId] = useState(() => `user_${Math.random().toString(36).substr(2, 9)}`);
-  const [authToken, setAuthToken] = useState<string>('');
+  const { user } = useAuth();
+  const [authToken, setAuthToken] = useState<string | null>(null);
   const [logs, setLogs] = useState<string[]>([]);
+  const [testUserId, setTestUserId] = useState<string>('test-user-001');
+  const [isPolling, setIsPolling] = useState(false);
+  const [pollIntervalId, setPollIntervalId] = useState<NodeJS.Timeout | null>(null);
+
+  // ユーザー名を取得するフック
+  const { displayName: player1Name } = useUserDisplayName(gameSession?.player1?.user_id || null);
+  const { displayName: player2Name } = useUserDisplayName(gameSession?.player2?.user_id || null);
+
   const [hasJoined, setHasJoined] = useState<boolean>(false); // 重複実行防止フラグ
-  const [testUserId, setTestUserId] = useState<string>(''); // 認証バイパス用UserID
   const [isInitialized, setIsInitialized] = useState<boolean>(false); // 初期化完了フラグ
   const joinInProgress = useRef<boolean>(false); // ref による排他制御
   const [wsConnecting, setWsConnecting] = useState(false);
   
   // ポーリング用の状態
-  const [isPolling, setIsPolling] = useState<boolean>(false);
   const pollingInterval = useRef<NodeJS.Timeout | null>(null);
 
   // ログ機能を無効化
@@ -122,16 +129,32 @@ export default function WaitingRoom({
 
   // 認証トークンを取得
   useEffect(() => {
-    if (session) {
-      setAuthToken(session.access_token);
-      console.log('🔐 Authenticated session found, using JWT token');
-    } else {
-      // 認証がない場合は認証バイパスモードで動作
-      setAuthToken('BYPASS_AUTH');
-      console.log('🔓 No authentication session found, using BYPASS_AUTH mode');
-    }
-    setIsInitialized(true); // 認証状態確定
-  }, [session]);
+    const getToken = async () => {
+      if (user) {
+        try {
+          const supabase = createClient();
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session?.access_token) {
+            setAuthToken(session.access_token);
+            console.log('🔐 Authenticated session found, using JWT token');
+          } else {
+            setAuthToken('BYPASS_AUTH');
+            console.log('🔓 No access token found, using BYPASS_AUTH mode');
+          }
+        } catch (error) {
+          setAuthToken('BYPASS_AUTH');
+          console.log('🔓 Error getting session, using BYPASS_AUTH mode');
+        }
+      } else {
+        // 認証がない場合は認証バイパスモードで動作
+        setAuthToken('BYPASS_AUTH');
+        console.log('🔓 No authentication session found, using BYPASS_AUTH mode');
+      }
+      setIsInitialized(true); // 認証状態確定
+    };
+    
+    getToken();
+  }, [user]);
 
   const joinByPasscode = async () => {
     if (hasJoined || joinInProgress.current) {
@@ -351,7 +374,7 @@ export default function WaitingRoom({
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <span style={{ fontWeight: 'bold', fontSize: '16px' }}>Player 1</span>
                 <span style={{ fontSize: '14px', color: gameSession?.player1 ? '#4CAF50' : '#ff6b6b', marginTop: '4px' }}>
-                  {gameSession?.player1 ? gameSession.player1.user_id : '待機中...'}
+                  {gameSession?.player1 ? player1Name : '待機中...'}
                 </span>
               </div>
             </div>
@@ -365,7 +388,7 @@ export default function WaitingRoom({
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <span style={{ fontWeight: 'bold', fontSize: '16px' }}>Player 2</span>
                 <span style={{ fontSize: '14px', color: gameSession?.player2 ? '#4CAF50' : '#ff6b6b', marginTop: '4px' }}>
-                  {gameSession?.player2 ? gameSession.player2.user_id : '待機中...'}
+                  {gameSession?.player2 ? player2Name : '待機中...'}
                 </span>
               </div>
             </div>

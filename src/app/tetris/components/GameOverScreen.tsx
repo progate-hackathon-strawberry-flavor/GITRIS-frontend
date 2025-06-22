@@ -1,6 +1,8 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { GameResult, GameSession } from '../page';
+import { useUserDisplayName } from '@/hooks/useAuth';
 
 interface GameOverScreenProps {
   gameResult: GameResult | null;
@@ -14,6 +16,10 @@ export default function GameOverScreen({
   onReturnToEntry
 }: GameOverScreenProps) {
   
+  // ユーザー名を取得するフック
+  const { displayName: player1Name } = useUserDisplayName(gameSession?.player1?.user_id || null);
+  const { displayName: player2Name } = useUserDisplayName(gameSession?.player2?.user_id || null);
+  
   const getResultMessage = () => {
     if (!gameResult || !gameSession) return '結果を取得中...';
 
@@ -21,13 +27,17 @@ export default function GameOverScreen({
 
     if (reason === 'time_up') {
       if (winner) {
-        return `⏰ 時間切れ！ ${winner} の勝利！`;
+        // winnerはuser_idなので、適切なユーザー名に変換
+        const winnerName = winner === gameSession.player1?.user_id ? player1Name : player2Name;
+        return `⏰ 時間切れ！ ${winnerName} の勝利！`;
       } else {
         return `⏰ 時間切れ！ 引き分け！`;
       }
     } else if (reason === 'game_over') {
       if (winner) {
-        return `🏆 ${winner} の勝利！`;
+        // winnerはuser_idなので、適切なユーザー名に変換
+        const winnerName = winner === gameSession.player1?.user_id ? player1Name : player2Name;
+        return `🏆 ${winnerName} の勝利！`;
       } else {
         return `🏁 ゲーム終了`;
       }
@@ -57,8 +67,6 @@ export default function GameOverScreen({
     if (!gameResult || !gameSession) return null;
 
     const { winner, player1_score, player2_score } = gameResult;
-    const player1Name = gameSession.player1?.user_id || 'Player 1';
-    const player2Name = gameSession.player2?.user_id || 'Player 2';
 
     return (
       <div className="match-summary">
@@ -88,7 +96,7 @@ export default function GameOverScreen({
         <div className="stats-grid">
           {gameSession.player1 && (
             <div className="stats-column">
-              <h4>{gameSession.player1.user_id}</h4>
+              <h4>{player1Name}</h4>
               <div className="stat-item">
                 <span className="label">スコア:</span>
                 <span className="value">{gameSession.player1.score.toLocaleString()}</span>
@@ -106,7 +114,7 @@ export default function GameOverScreen({
           
           {gameSession.player2 && (
             <div className="stats-column">
-              <h4>{gameSession.player2.user_id}</h4>
+              <h4>{player2Name}</h4>
               <div className="stat-item">
                 <span className="label">スコア:</span>
                 <span className="value">{gameSession.player2.score.toLocaleString()}</span>

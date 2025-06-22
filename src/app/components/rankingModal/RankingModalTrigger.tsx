@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import styles from './rankingModal.module.css'; // ランキングモーダル用のCSS Modulesをインポート
+import { useUserDisplayName } from '@/hooks/useAuth';
 
 interface ResultData {
   id: number;
@@ -9,6 +10,12 @@ interface ResultData {
   score: number;
   created_at: string;
   rank: number;
+}
+
+// ユーザー名表示コンポーネント
+function UserNameDisplay({ userId }: { userId: string }) {
+  const { displayName } = useUserDisplayName(userId);
+  return <span>{displayName}</span>;
 }
 
 export default function RankingModalTrigger() {
@@ -130,7 +137,7 @@ export default function RankingModalTrigger() {
                     {resultData.map((entry, index) => (
                       <tr key={entry.id}>
                         <td>{getRankDisplay(entry.rank)}</td>
-                        <td>{getDisplayUserName(entry.user_id)}</td>
+                        <td><UserNameDisplay userId={entry.user_id} /></td>
                         <td>{entry.score.toLocaleString()}</td>
                       </tr>
                     ))}

@@ -46,3 +46,40 @@ export const useAuth = () => {
   }
   return context
 }
+
+// ユーザー名（表示名）を取得するカスタムフック
+export function useUserDisplayName(userID: string | null) {
+  const [displayName, setDisplayName] = useState<string>('ゲスト')
+  const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    if (!userID) {
+      setDisplayName('ゲスト')
+      return
+    }
+
+    const fetchDisplayName = async () => {
+      setLoading(true)
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
+        const response = await fetch(`${apiUrl}/api/user/${userID}/display-name`)
+        
+        if (response.ok) {
+          const data = await response.json()
+          setDisplayName(data.displayName || 'ゲスト')
+        } else {
+          setDisplayName('ゲスト')
+        }
+      } catch (error) {
+        console.error('ユーザー名の取得に失敗しました:', error)
+        setDisplayName('ゲスト')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchDisplayName()
+  }, [userID])
+
+  return { displayName, loading }
+}
