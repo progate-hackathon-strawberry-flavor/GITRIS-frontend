@@ -1,6 +1,6 @@
 'use client'; // このコンポーネントはクライアントコンポーネントです
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import styles from './rankingModal.module.css'; // ランキングモーダル用のCSS Modulesをインポート
 
 interface ResultData {
