@@ -95,11 +95,13 @@ export default function TetrisBoard({
       type: number;
       isCurrent: boolean;
       scoreClass: string;
+      isEmpty: boolean;
     }>> = Array(BOARD_HEIGHT).fill(null).map(() =>
       Array(BOARD_WIDTH).fill(null).map(() => ({
         type: 0,
         isCurrent: false,
-        scoreClass: ''
+        scoreClass: '',
+        isEmpty: true
       }))
     );
 
@@ -111,6 +113,7 @@ export default function TetrisBoard({
             const cellValue = board[row][col];
             if (cellValue && cellValue > 0) {
               boardCopy[row][col].type = cellValue - 1; // BlockType (1-7) を PieceType (0-6) に変換
+              boardCopy[row][col].isEmpty = false;
               
               // スコアベースの色分けを適用
               if (contributionScores) {
@@ -137,6 +140,7 @@ export default function TetrisBoard({
         if (boardRow >= 0 && boardRow < BOARD_HEIGHT && boardCol >= 0 && boardCol < BOARD_WIDTH) {
           boardCopy[boardRow][boardCol].type = currentPiece.type; // PieceType (0-6) をそのまま使用
           boardCopy[boardRow][boardCol].isCurrent = true;
+          boardCopy[boardRow][boardCol].isEmpty = false;
           
           // 現在のピースには専用のスコアデータを使用
           if (currentPieceScores) {
@@ -168,7 +172,7 @@ export default function TetrisBoard({
             key={`${rowIndex}-${colIndex}`}
             className={`
               cell
-              ${cell.type > 0 ? `type-${cell.type}` : ''}
+              ${!cell.isEmpty ? `type-${cell.type}` : ''}
               ${cell.isCurrent ? 'current' : ''}
               ${cell.scoreClass}
             `}
