@@ -395,11 +395,12 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 30px;
+  gap: 20px;
   background: #333;
-  padding: 15px;
+  padding: 10px;
   border-radius: 8px;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
+  flex-shrink: 0;
 }
 
 .game-status,
@@ -436,26 +437,116 @@
 
 .game-content {
   display: flex;
+  flex-direction: column;
   flex: 1;
-  gap: 20px;
+  gap: 1rem;
   overflow: hidden;
+  min-height: 0;
+  padding: 1rem;
+  height: 100%;
 }
 
 .game-boards {
   display: flex;
+  gap: 1rem;
+  flex: 1;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 0;
+  overflow: hidden;
+  height: 100%;
+}
+
+/* 中央のミニボード（Hold/Next）エリア */
+.center-mini-boards {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+  background: transparent;
+  padding: 1rem;
+  flex: 0 0 auto;
+  justify-content: flex-start;
+}
+
+.mini-boards-row {
+  display: flex;
   gap: 20px;
-  flex: 3;
+  align-items: center;
+}
+
+.player1-hold,
+.player1-next,
+.player2-hold,
+.player2-next {
+  text-align: center;
+  background: transparent;
+  padding: 10px;
+  min-width: 80px;
+}
+
+.player1-hold h4,
+.player1-next h4,
+.player2-hold h4,
+.player2-next h4 {
+  margin: 0 0 8px 0;
+  font-size: 0.8rem;
+  color: #ccc;
+}
+
+/* コンパクトな操作エリア */
+.compact-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 15px;
+  padding: 10px;
+  background: #2a2a2a;
+  border-radius: 8px;
+  max-width: 400px;
+}
+
+.control-buttons {
+  display: flex;
+  justify-content: center;
+}
+
+.control-help-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.control-section-compact {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 0.75rem;
+}
+
+.control-title {
+  color: #4ecdc4;
+  font-weight: bold;
+  flex-shrink: 0;
+  min-width: 60px;
+}
+
+.control-text {
+  color: #ccc;
+  line-height: 1.2;
 }
 
 .player-area {
   flex: 1;
   background: #2a2a2a;
   border: 2px solid #333;
-  border-radius: 10px;
-  padding: 20px;
+  border-radius: 8px;
+  padding: 15px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  max-height: 100%;
+  overflow: hidden;
 }
 
 .player-header {
@@ -476,21 +567,23 @@
 /* Tetris Board Styles */
 .tetris-board {
   display: grid;
-  grid-template-columns: repeat(10, 25px);
-  grid-template-rows: repeat(20, 25px);
+  grid-template-columns: repeat(10, 1fr);
+  grid-template-rows: repeat(20, 1fr);
   gap: 1px;
   background: #000;
-  padding: 5px;
-  border: 3px solid #444;
+  padding: 0.2rem;
+  border: 2px solid #444;
   border-radius: 5px;
-  margin-bottom: 15px;
+  margin-bottom: 0.5rem;
+  aspect-ratio: 0.5;
+  width: clamp(200px, 30vw, min(25vh, 350px));
+  height: auto;
 }
 
 .cell {
-  width: 25px;
-  height: 25px;
   background: #111;
   border: 1px solid #333;
+  aspect-ratio: 1;
 }
 
 /* Tetris Piece Colors */
@@ -588,15 +681,15 @@
 .player-stats {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 15px;
+  gap: 8px;
+  margin-bottom: 10px;
   width: 100%;
 }
 
 .stat-item {
   background: #333;
-  padding: 8px;
-  border-radius: 5px;
+  padding: 6px;
+  border-radius: 4px;
   text-align: center;
 }
 
@@ -644,19 +737,20 @@
 /* Mini Board Styles */
 .tetris-mini-board {
   display: grid;
-  grid-template-columns: repeat(4, 15px);
-  grid-template-rows: repeat(4, 15px);
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
   gap: 1px;
   background: #000;
-  padding: 3px;
+  padding: 0.1rem;
   border: 1px solid #444;
   border-radius: 3px;
+  aspect-ratio: 1;
+  width: clamp(50px, 6vw, min(4vh, 80px));
 }
 
 .mini-cell {
-  width: 15px;
-  height: 15px;
   background: #111;
+  aspect-ratio: 1;
 }
 
 /* ミニボード用テトリミノ色（中間の明るさ） */
@@ -670,14 +764,18 @@
 
 /* Game Sidebar */
 .game-sidebar {
-  flex: 1;
   background: #2a2a2a;
   border: 2px solid #333;
-  border-radius: 10px;
-  padding: 20px;
+  border-radius: 8px;
+  padding: 15px;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  max-height: 200px;
+  overflow-y: auto;
 }
 
 /* Game Controls */
@@ -689,19 +787,19 @@
 .controls-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 6px;
 }
 
 .control-button {
-  padding: 12px;
+  padding: 8px;
   background: var(--gitris-dark-green);
   color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 4px;
   cursor: pointer;
   font-weight: bold;
   transition: all 0.3s;
-  font-size: 0.9rem;
+  font-size: 0.75rem;
 }
 
 .control-button:hover {
@@ -718,6 +816,16 @@
   margin-bottom: 10px;
 }
 
+.control-section {
+  margin-bottom: 15px;
+}
+
+.control-section h5 {
+  color: #4ecdc4;
+  margin: 0 0 8px 0;
+  font-size: 0.9rem;
+}
+
 .control-help ul {
   list-style: none;
   padding: 0;
@@ -726,7 +834,7 @@
 .control-help li {
   color: #ccc;
   margin-bottom: 5px;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
 }
 
 /* Game Over Screen */
@@ -915,47 +1023,284 @@
 }
 
 /* Responsive Design */
-@media (max-width: 1200px) {
+@media (max-width: 1200px) and (min-width: 769px) {
+  .tetris-board {
+    width: min(35vw, 30vh);
+  }
+
+  .tetris-mini-board {
+    width: min(8vw, 5vh);
+  }
+
   .game-content {
-    flex-direction: column;
+    padding: 0.8rem;
+    gap: 0.8rem;
   }
-  
-  .game-boards {
-    flex-direction: row;
-  }
-  
-  .game-sidebar {
-    flex-direction: row;
-    flex-wrap: wrap;
+
+  .center-mini-boards {
+    padding: 0.8rem;
+    gap: 0.8rem;
   }
 }
 
 @media (max-width: 768px) {
   .tetris-app {
-    padding: 10px;
+    padding: 0.3rem;
   }
   
+  .tetris-game-room {
+    padding: 0.3rem;
+    height: 100vh;
+    position: relative;
+  }
+  
+  .game-header {
+    padding: 0.3rem;
+    margin-bottom: 0.3rem;
+    font-size: 0.8rem;
+  }
+  
+  .game-content {
+    padding: 0.3rem;
+    gap: 0.3rem;
+    position: relative;
+    height: calc(100vh - 80px);
+  }
+  
+  /* ゲームボードエリア */
   .game-boards {
+    position: relative;
+    display: block;
+    height: calc(100% - 80px);
+  }
+  
+  /* デフォルトレイアウト（Player1メイン） */
+  .main-player1 .player-area.player1,
+  .main-player2 .player-area.player2 {
+    /* メインプレイヤーエリア */
+    position: relative;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0.3rem;
+    background: transparent;
+    border: none;
+    display: flex;
     flex-direction: column;
+    align-items: center;
   }
   
-  .game-sidebar {
-    flex-direction: column;
+  .main-player1 .player-area.player2,
+  .main-player2 .player-area.player1 {
+    /* 相手のボードエリア（右上に小さく表示）*/
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100px;
+    height: 160px;
+    padding: 0.2rem;
+    background: rgba(42, 42, 42, 0.9);
+    border: 1px solid #555;
+    border-radius: 4px;
+    z-index: 10;
+    backdrop-filter: blur(3px);
   }
   
-  .match-summary {
-    flex-direction: column;
-    gap: 15px;
+  /* メインプレイヤーのテトリスボード */
+  .main-player1 .player-area.player1 .tetris-board,
+  .main-player2 .player-area.player2 .tetris-board {
+    width: min(65vw, 50vh);
+    margin: 0 auto;
   }
   
-  .stats-grid {
-    grid-template-columns: 1fr;
+  /* 相手の小さいテトリスボード */
+  .main-player1 .player-area.player2 .tetris-board,
+  .main-player2 .player-area.player1 .tetris-board {
+    width: 80px;
+    height: 100px;
+    aspect-ratio: 0.5;
+    padding: 1px;
+    border: 1px solid #444;
+    margin: 0;
   }
   
-  .passcode-card,
-  .waiting-card,
-  .game-over-card {
-    padding: 20px;
-    margin: 0 10px;
+  /* 相手のボードのヘッダーを小さく */
+  .main-player1 .player-area.player2 .player-header,
+  .main-player2 .player-area.player1 .player-header {
+    margin-bottom: 0.2rem;
   }
-} 
+  
+  .main-player1 .player-area.player2 .player-header h3,
+  .main-player2 .player-area.player1 .player-header h3 {
+    font-size: 0.6rem;
+    margin: 0;
+  }
+  
+  .main-player1 .player-area.player2 .player-name,
+  .main-player2 .player-area.player1 .player-name {
+    font-size: 0.5rem;
+  }
+  
+  /* 相手のスタッツを非表示 */
+  .main-player1 .player-area.player2 .player-stats,
+  .main-player2 .player-area.player1 .player-stats {
+    display: none;
+  }
+  
+  /* Hold/Nextエリアを左側に配置 */
+  .center-mini-boards {
+    position: absolute;
+    left: 0.3rem;
+    top: 40%;
+    transform: translateY(-50%);
+    padding: 0.3rem;
+    gap: 0.5rem;
+    width: auto;
+    background: rgba(42, 42, 42, 0.85);
+    border-radius: 4px;
+    backdrop-filter: blur(3px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .tetris-mini-board {
+    width: 40px;
+    height: 40px;
+  }
+  
+  /* Hold/Nextのラベルを小さく */
+  .center-mini-boards h4 {
+    font-size: 0.6rem;
+    margin-bottom: 0.2rem;
+    text-align: center;
+  }
+  
+  /* コンパクトな操作エリアを中央下部に配置 */
+  .compact-controls {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0.3rem;
+    gap: 0.3rem;
+    background: rgba(42, 42, 42, 0.9);
+    border-radius: 4px;
+    backdrop-filter: blur(3px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    max-width: 80vw;
+  }
+  
+  .control-section-compact {
+    font-size: 0.6rem;
+    gap: 0.3rem;
+  }
+  
+  .control-title {
+    min-width: 40px;
+    font-size: 0.6rem;
+  }
+  
+  .control-text {
+    font-size: 0.6rem;
+  }
+  
+  .control-button {
+    padding: 0.2rem 0.3rem;
+    font-size: 0.6rem;
+  }
+}
+
+/* Very small screens (mobile portrait) */
+@media (max-width: 480px) {
+  /* メインプレイヤーのボードをさらに大きく */
+  .main-player1 .player-area.player1 .tetris-board,
+  .main-player2 .player-area.player2 .tetris-board {
+    width: min(70vw, 55vh);
+  }
+
+  /* 相手のボードをさらに小さく */
+  .main-player1 .player-area.player2,
+  .main-player2 .player-area.player1 {
+    width: 85px;
+    height: 140px;
+  }
+  
+  .main-player1 .player-area.player2 .tetris-board,
+  .main-player2 .player-area.player1 .tetris-board {
+    width: 70px;
+    height: 85px;
+  }
+
+  .tetris-mini-board {
+    width: 35px;
+    height: 35px;
+  }
+
+  .center-mini-boards {
+    padding: 0.25rem;
+    gap: 0.4rem;
+  }
+  
+  .center-mini-boards h4 {
+    font-size: 0.55rem;
+  }
+  
+  .compact-controls {
+    padding: 0.25rem;
+    max-width: 85vw;
+  }
+  
+  .control-section-compact {
+    font-size: 0.55rem;
+  }
+  
+  .control-title {
+    min-width: 35px;
+    font-size: 0.55rem;
+  }
+  
+  .control-text {
+    font-size: 0.55rem;
+  }
+}
+
+/* Mobile landscape orientation */
+@media (max-height: 500px) and (orientation: landscape) and (max-width: 768px) {
+  /* 横向きでは高さが制限されるので調整 */
+  .main-player1 .player-area.player1 .tetris-board,
+  .main-player2 .player-area.player2 .tetris-board {
+    width: min(35vw, 75vh);
+  }
+
+  .main-player1 .player-area.player2,
+  .main-player2 .player-area.player1 {
+    width: 90px;
+    height: 140px;
+  }
+  
+  .main-player1 .player-area.player2 .tetris-board,
+  .main-player2 .player-area.player1 .tetris-board {
+    width: 70px;
+    height: 90px;
+  }
+
+  .center-mini-boards {
+    left: 0.2rem;
+    top: 35%;
+    padding: 0.2rem;
+    gap: 0.4rem;
+  }
+  
+  .tetris-mini-board {
+    width: 35px;
+    height: 35px;
+  }
+  
+  .center-mini-boards h4 {
+    font-size: 0.55rem;
+  }
+  
+  .compact-controls {
+    padding: 0.2rem;
+    max-width: 70vw;
+  }
+}

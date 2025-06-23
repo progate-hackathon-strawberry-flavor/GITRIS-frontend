@@ -147,7 +147,6 @@ export default function TetrisGame() {
   return (
     <div className="tetris-app">
       <div className="tetris-container">
-        <h1 className="tetris-title">🎮 GITRIS 🎮</h1>
         {renderCurrentPhase()}
       </div>
     </div>

@@ -438,6 +438,7 @@ export default function TetrisGameRoom({
       </div>
 
       <div className="game-content">
+        {/* ゲームボードエリア */}
         <div className="game-boards">
           {/* Player 1 */}
           <div className="player-area player1">
@@ -477,20 +478,55 @@ export default function TetrisGameRoom({
                     </span>
                   </div>
                 </div>
-
-                <div className="mini-boards">
-                  <div className="next-piece">
-                    <h4>Next</h4>
-                    <TetrisMiniBoard piece={gameSession.player1.next_piece} />
-                  </div>
-                  <div className="hold-piece">
-                    <h4>Hold</h4>
-                    <TetrisMiniBoard piece={gameSession.player1.held_piece} />
-                  </div>
-                </div>
               </>
             )}
           </div>
+
+                      {/* 中央のミニボード（Hold/Next）と操作エリア */}
+            <div className="center-mini-boards">
+              {gameSession.player1 && gameSession.player2 && (
+                <>
+                  <div className="mini-boards-row">
+                    <div className="player1-hold">
+                      <h4>Player 1 Hold</h4>
+                      <TetrisMiniBoard piece={gameSession.player1.held_piece} />
+                    </div>
+                    <div className="player2-hold">
+                      <h4>Player 2 Hold</h4>
+                      <TetrisMiniBoard piece={gameSession.player2.held_piece} />
+                    </div>
+                  </div>
+                  <div className="mini-boards-row">
+                    <div className="player1-next">
+                      <h4>Player 1 Next</h4>
+                      <TetrisMiniBoard piece={gameSession.player1.next_piece} />
+                    </div>
+                    <div className="player2-next">
+                      <h4>Player 2 Next</h4>
+                      <TetrisMiniBoard piece={gameSession.player2.next_piece} />
+                    </div>
+                  </div>
+                  
+                  {/* コンパクトな操作エリア */}
+                  <div className="compact-controls">
+                    <div className="control-buttons">
+                      <GameControls onAction={sendAction} />
+                    </div>
+                    
+                    <div className="control-help-compact">
+                      <div className="control-section-compact">
+                        <span className="control-title">⌨️ キー:</span>
+                        <span className="control-text">←→移動 ↑ハード ↓ソフト Space回転 Cホールド</span>
+                      </div>
+                      <div className="control-section-compact">
+                        <span className="control-title">📱 タッチ:</span>
+                        <span className="control-text">フリック移動/ドロップ タップ回転 長押しホールド</span>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
 
           {/* Player 2 */}
           <div className="player-area player2">
@@ -530,59 +566,12 @@ export default function TetrisGameRoom({
                     </span>
                   </div>
                 </div>
-
-                <div className="mini-boards">
-                  <div className="next-piece">
-                    <h4>Next</h4>
-                    <TetrisMiniBoard piece={gameSession.player2.next_piece} />
-                  </div>
-                  <div className="hold-piece">
-                    <h4>Hold</h4>
-                    <TetrisMiniBoard piece={gameSession.player2.held_piece} />
-                  </div>
-                </div>
               </>
             )}
           </div>
         </div>
 
-        <div className="game-sidebar">
-          <GameControls onAction={sendAction} />
-          
-          <div className="control-help">
-            <h4>🎮 操作方法</h4>
-            <div className="control-section">
-              <h5>⌨️ キーボード</h5>
-              <ul>
-                <li>←→: 左右移動</li>
-                <li>↑: ハードドロップ</li>
-                <li>↓: ソフトドロップ</li>
-                <li>Space: 回転</li>
-                <li>C: ホールド</li>
-              </ul>
-            </div>
-            <div className="control-section">
-              <h5>📱 タッチ操作</h5>
-              <ul>
-                <li>左フリック: 左移動</li>
-                <li>右フリック: 右移動</li>
-                <li>上フリック: ハードドロップ</li>
-                <li>下フリック: ソフトドロップ</li>
-                <li>タップ: 回転</li>
-                <li>長押し: ホールド</li>
-              </ul>
-            </div>
-          </div>
 
-          <div className="logs-section">
-            <h4>📋 ログ</h4>
-            <div className="logs">
-              {logs.map((log, index) => (
-                <div key={index} className="log-entry">{log}</div>
-              ))}
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );

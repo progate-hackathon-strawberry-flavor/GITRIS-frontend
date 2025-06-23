@@ -135,8 +135,8 @@ export default function WaitingRoom({
           const supabase = createClient();
           const { data: { session } } = await supabase.auth.getSession();
           if (session?.access_token) {
-            setAuthToken(session.access_token);
-            console.log('🔐 Authenticated session found, using JWT token');
+      setAuthToken(session.access_token);
+      console.log('🔐 Authenticated session found, using JWT token');
           } else {
             setAuthToken('BYPASS_AUTH');
             console.log('🔓 No access token found, using BYPASS_AUTH mode');
@@ -145,12 +145,12 @@ export default function WaitingRoom({
           setAuthToken('BYPASS_AUTH');
           console.log('🔓 Error getting session, using BYPASS_AUTH mode');
         }
-      } else {
-        // 認証がない場合は認証バイパスモードで動作
-        setAuthToken('BYPASS_AUTH');
-        console.log('🔓 No authentication session found, using BYPASS_AUTH mode');
-      }
-      setIsInitialized(true); // 認証状態確定
+    } else {
+      // 認証がない場合は認証バイパスモードで動作
+      setAuthToken('BYPASS_AUTH');
+      console.log('🔓 No authentication session found, using BYPASS_AUTH mode');
+    }
+    setIsInitialized(true); // 認証状態確定
     };
     
     getToken();
