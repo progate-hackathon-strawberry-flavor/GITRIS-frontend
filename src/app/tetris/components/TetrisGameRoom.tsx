@@ -23,6 +23,11 @@ export default function TetrisGameRoom({
   const [logs, setLogs] = useState<string[]>([]);
   const [gameEnded, setGameEnded] = useState<boolean>(false);
 
+  // タッチ操作のための状態管理
+  const [touchStart, setTouchStart] = useState<{ x: number; y: number; time: number } | null>(null);
+  const [isLongPress, setIsLongPress] = useState<boolean>(false);
+  const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
+
   // ユーザー名を取得するフック
   const { displayName: player1Name } = useUserDisplayName(gameSession?.player1?.user_id || null);
   const { displayName: player2Name } = useUserDisplayName(gameSession?.player2?.user_id || null);
@@ -45,6 +50,95 @@ export default function TetrisGameRoom({
     socket.send(JSON.stringify(message));
     addLog(`送信: ${action}`);
   }, [socket]);
+
+  // タッチ操作ハンドラー
+  const handleTouchStart = useCallback((e: TouchEvent) => {
+    e.preventDefault(); // スクロールを防ぐ
+    
+    const touch = e.touches[0];
+    const startTime = Date.now();
+    
+    setTouchStart({
+      x: touch.clientX,
+      y: touch.clientY,
+      time: startTime
+    });
+    
+    setIsLongPress(false);
+    
+    // 長押し検出用のタイマー（500ms）
+    const timer = setTimeout(() => {
+      setIsLongPress(true);
+      sendAction('hold'); // ホールド操作
+      addLog('📱 長押し: ホールド');
+    }, 500);
+    
+    setLongPressTimer(timer);
+  }, [sendAction]);
+
+  const handleTouchEnd = useCallback((e: TouchEvent) => {
+    e.preventDefault();
+    
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      setLongPressTimer(null);
+    }
+    
+    if (!touchStart) return;
+    
+    const touch = e.changedTouches[0];
+    const endTime = Date.now();
+    const duration = endTime - touchStart.time;
+    
+    const deltaX = touch.clientX - touchStart.x;
+    const deltaY = touch.clientY - touchStart.y;
+    
+    // フリック検出の閾値
+    const minSwipeDistance = 50; // 最小スワイプ距離
+    const maxTapDuration = 300; // タップとみなす最大時間
+    
+    // 長押しだった場合は他の操作を実行しない
+    if (isLongPress) {
+      setTouchStart(null);
+      return;
+    }
+    
+    const absX = Math.abs(deltaX);
+    const absY = Math.abs(deltaY);
+    
+    // フリック操作の判定
+    if (absX > minSwipeDistance || absY > minSwipeDistance) {
+      if (absX > absY) {
+        // 水平方向のフリック
+        if (deltaX > 0) {
+          sendAction('move_right'); // 右フリック
+          addLog('📱 右フリック: 右移動');
+        } else {
+          sendAction('move_left'); // 左フリック
+          addLog('📱 左フリック: 左移動');
+        }
+      } else {
+        // 垂直方向のフリック
+        if (deltaY < 0) {
+          sendAction('hard_drop'); // 上フリック
+          addLog('📱 上フリック: ハードドロップ');
+        } else {
+          sendAction('soft_drop'); // 下フリック
+          addLog('📱 下フリック: ソフトドロップ');
+        }
+      }
+    } else if (duration < maxTapDuration) {
+      // タップ操作
+      sendAction('rotate'); // 回転
+      addLog('📱 タップ: 回転');
+    }
+    
+    setTouchStart(null);
+  }, [touchStart, isLongPress, longPressTimer, sendAction]);
+
+  const handleTouchMove = useCallback((e: TouchEvent) => {
+    e.preventDefault(); // スクロールを防ぐ
+  }, []);
 
   useEffect(() => {
     if (!socket) return;
@@ -273,11 +367,32 @@ export default function TetrisGameRoom({
       }
     };
 
+    // キーボードイベントリスナー
     document.addEventListener('keydown', handleKeyDown);
+    
+    // タッチイベントリスナー（ゲームエリアに対して）
+    const gameElement = document.querySelector('.tetris-game-room');
+    if (gameElement) {
+      gameElement.addEventListener('touchstart', handleTouchStart, { passive: false });
+      gameElement.addEventListener('touchend', handleTouchEnd, { passive: false });
+      gameElement.addEventListener('touchmove', handleTouchMove, { passive: false });
+    }
+
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
+      
+      if (gameElement) {
+        gameElement.removeEventListener('touchstart', handleTouchStart);
+        gameElement.removeEventListener('touchend', handleTouchEnd);
+        gameElement.removeEventListener('touchmove', handleTouchMove);
+      }
+      
+      // タイマークリーンアップ
+      if (longPressTimer) {
+        clearTimeout(longPressTimer);
+      }
     };
-  }, [sendAction]);
+  }, [sendAction, handleTouchStart, handleTouchEnd, handleTouchMove, longPressTimer]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -436,13 +551,27 @@ export default function TetrisGameRoom({
           
           <div className="control-help">
             <h4>🎮 操作方法</h4>
-            <ul>
-              <li>←→: 左右移動</li>
-              <li>↑: ハードドロップ</li>
-              <li>↓: ソフトドロップ</li>
-              <li>Space: 回転</li>
-              <li>C: ホールド</li>
-            </ul>
+            <div className="control-section">
+              <h5>⌨️ キーボード</h5>
+              <ul>
+                <li>←→: 左右移動</li>
+                <li>↑: ハードドロップ</li>
+                <li>↓: ソフトドロップ</li>
+                <li>Space: 回転</li>
+                <li>C: ホールド</li>
+              </ul>
+            </div>
+            <div className="control-section">
+              <h5>📱 タッチ操作</h5>
+              <ul>
+                <li>左フリック: 左移動</li>
+                <li>右フリック: 右移動</li>
+                <li>上フリック: ハードドロップ</li>
+                <li>下フリック: ソフトドロップ</li>
+                <li>タップ: 回転</li>
+                <li>長押し: ホールド</li>
+              </ul>
+            </div>
           </div>
 
           <div className="logs-section">
