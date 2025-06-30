@@ -25,7 +25,7 @@ type TetrominoPlacementPayload = {
 const UI_COLORS = {
   brightGreen: "#56D364",
   darkGreen: "#2DA042",
-  darkBackground: "#151823",
+  darkBackground: "#151B23",
   lightText: "#F0F5FA",
 };
 
@@ -39,7 +39,7 @@ const TETROMINO_COLORS = {
   L: ["#B963F2", "#A357D5", "#8D4BB8", "#763F9B", "#60347E"],
 };
 
-const GITHUB_COLORS = ["#151B23", "#023A16", "#196C2E", "#2DA042", "#56D364"]
+const GITHUB_COLORS = ["#151823", "#023A16", "#196C2E", "#2DA042", "#56D364"]
   // GitHub草の基本色として利用
 
 // --- テトリミノの形状定義 (相対座標) ---
@@ -616,17 +616,12 @@ export default function DeckMain() {
       }}
     >
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');`}</style>
-      <h1 className="text-4xl font-bold mb-8" style={{ color: UI_COLORS.lightText }}>
-        GitHub 草テトリス：デッキ編成
-      </h1>
 
       <div className="bg-gray-800 p-6 rounded-xl shadow-lg mb-8 w-full max-w-5xl flex flex-col lg:flex-row justify-between items-start">
         {/* パレット */}
-        <div className="w-full lg:w-1/4 mb-6 lg:mb-0">
-          <h2 className="text-2xl font-semibold mb-4" style={{ color: UI_COLORS.lightText }}>
-            テトリミノパレット
-          </h2>
-          <div className="grid grid-cols-2 gap-4">
+        <div className="w-full lg:w-1/4 max-w-xs mb-8 lg:mb-0 lg:mr-10">
+            {/* ★★★ 変更点 ★★★ パレットのセルの感覚をgap-4からgap-5に拡大 */}
+            <div className="grid grid-cols-2 gap-5">
             {Object.keys(TETROMINO_SHAPES).map((type) => {
               const isPlaced = placedTetrominos.some((p) => p.type === type);
               return (
@@ -673,11 +668,8 @@ export default function DeckMain() {
         </div>
 
         {/* グリッド・スコア・ボタン */}
-        <div className="w-full lg:w-3/4 flex flex-col items-center lg:pl-6">
-          <div className="w-full flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-semibold" style={{ color: UI_COLORS.lightText }}>
-              GitHub草グリッド (8x7)
-            </h2>
+        <div className="w-full lg:w-3/4 flex flex-col items-center">
+          <div className="w-full flex justify-center items-center mb-6">
             <GetContributionsButton />
           </div>
           {message && (
@@ -698,7 +690,7 @@ export default function DeckMain() {
               boxShadow: "0 0 15px rgba(86, 211, 100, 0.5)",
             }}
           >
-            ポテンシャルスコア:{" "}
+            SCORE:{" "}
             <span style={{ color: UI_COLORS.brightGreen }}>{potentialScore}</span>
           </div>
           <div className="mb-4">
