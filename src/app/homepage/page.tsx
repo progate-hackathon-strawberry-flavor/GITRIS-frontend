@@ -6,15 +6,19 @@ import RankingModalTrigger from '../components/rankingModal/RankingModalTrigger'
 import styles from '../page.module.css';
 
 export default async function Login() {
+  // サーバーサイドでSupabaseクライアントを作成
   const supabase = await createClient();
+
+  // ユーザーのセッション情報（ログイン状態）を取得
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   return (
-    // ★ 1. すべての要素を単一の<main>タグで囲みます
-    <main className={styles.container}>
-      {/* ★ 2. 右上のアイコン群をグループ化 */}
+    <div className={styles.container}>
+      {/* <style>タグはCSS Modulesファイルに移したので削除 */}
+
+      {/* 右上アイコン */}
       <div className={styles.topRightIcons}>
         <div className={styles.iconButton} title="ヘルプ">
           <HelpModalTrigger />
@@ -23,9 +27,7 @@ export default async function Login() {
           <RankingModalTrigger />
         </div>
       </div>
-
-      {/* ★ 3. 中央のコンテンツをグループ化 */}
-      <div className={styles.centerContent}>
+      <div className={styles.supabaseAuthSection}>
         <Image
           className="dark:invert"
           src="/ロゴ.png"
@@ -37,6 +39,6 @@ export default async function Login() {
         {/* @ts-ignore */}
         <HomepageButton />
       </div>
-    </main>
+    </div>
   );
 }
