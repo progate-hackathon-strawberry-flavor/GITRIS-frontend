@@ -38,11 +38,22 @@ export default function GetContributionsButton() {
 
     return (
         <div>
-            <button onClick={fetchContributions} disabled={loading}>
-                {loading ? 'Loading' : 'CONNECT'}
+            <button
+            onClick={fetchContributions}
+            disabled={loading}
+            style={{
+                padding: '10px 32px',
+                fontSize: '1.25rem',
+                backgroundColor: "#2DA042",
+                border: 'none',
+                borderRadius: '8px',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                opacity: loading ? 0.7 : 1,
+            }}
+            >
+            {loading ? 'Loading...' : '初めて&再取得はこちらをクリック'}
             </button>
             {error && <p style={{ color: 'red' }}>エラー: {error}</p>}
-            {loading && <p>Loading...</p>}
         </div>
     );
 }

@@ -469,7 +469,7 @@ export default function DeckMain() {
             placedTetrominos
           )
         ) {
-          setMessage("その場所には配置できません。");
+          //setMessage("その場所には配置できません。");
           return null;
         }
         return {
@@ -491,7 +491,7 @@ export default function DeckMain() {
         );
         if (newPiece) {
           setPlacedTetrominos((prev) => [...prev, newPiece]);
-          setMessage("テトリミノを配置しました！");
+          //setMessage("テトリミノを配置しました！");
           setSelectedTetrominoType(null);
         }
       } else if (draggedTetrominoId !== null) {
@@ -511,7 +511,7 @@ export default function DeckMain() {
             setPlacedTetrominos((prev) =>
               prev.map((p) => (p.id === draggedTetrominoId ? movedPiece : p))
             );
-            setMessage("テトリミノを移動しました！");
+            //setMessage("テトリミノを移動しました！");
           }
         }
         setDraggedTetrominoId(null);
@@ -578,7 +578,7 @@ export default function DeckMain() {
               y: adjustedY,
               ...details,
             };
-            setMessage("テトリミノを回転しました！");
+            //setMessage("テトリミノを回転しました！");
             return newPlacedTetrominos;
           }
         }
@@ -592,7 +592,7 @@ export default function DeckMain() {
 
   const handleDelete = useCallback((id) => {
     setPlacedTetrominos((prev) => prev.filter((t) => t.id !== id));
-    setMessage("テトリミノを削除しました。");
+    //setMessage("テトリミノを削除しました。");
   }, []);
 
   const handleDragOver = (e) => e.preventDefault();
@@ -609,61 +609,62 @@ export default function DeckMain() {
 
   return (
     <div
-      className="min-h-screen flex flex-col items-center justify-center p-4"
+      className="min-h-screen flex flex-col items-center "
       style={{
         backgroundColor: UI_COLORS.darkBackground,
         fontFamily: '"DotGothic16", monospace',
       }}
     >
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');`}</style>
-
-      <div className="bg-gray-800 p-6 rounded-xl shadow-lg mb-8 w-full max-w-5xl flex flex-col lg:flex-row justify-between items-start">
+      
+      <div className="p-6 rounded-xl mb-8 mt-8 w-full max-w-6xl flex flex-col lg:flex-row items-center lg:items-start">
         {/* パレット */}
         <div className="w-full lg:w-1/4 max-w-xs mb-8 lg:mb-0 lg:mr-10">
             {/* ★★★ 変更点 ★★★ パレットのセルの感覚をgap-4からgap-5に拡大 */}
-            <div className="grid grid-cols-2 gap-5">
-            {Object.keys(TETROMINO_SHAPES).map((type) => {
-              const isPlaced = placedTetrominos.some((p) => p.type === type);
-              return (
-                <div
-                  key={type}
-                  className={`p-2 rounded-lg flex flex-col items-center justify-center transition-all ${
-                    isPlaced
-                      ? "opacity-40 cursor-not-allowed"
-                      : "cursor-grab hover:bg-gray-700 hover:scale-105"
-                  }`}
-                  draggable={!isPlaced}
-                  onDragStart={(e) => handlePaletteDragStart(e, type)}
-                  title={`${type}-ミノ`}
-                >
+            <div className="grid grid-cols-2 gap-4">
+              {Object.keys(TETROMINO_SHAPES).map((type) => {
+                const isPlaced = placedTetrominos.some((p) => p.type === type);
+                return (
+                  // ★★★ 変更点 ★★★ パレットセルのパディングをp-2からp-3に拡大
                   <div
-                    className="grid gap-px"
-                    style={{ gridTemplateColumns: `repeat(4, 12px)` }}
+                    key={type}
+                    className={`p-8 rounded-lg flex flex-col items-center justify-center transition-all ${
+                      isPlaced
+                        ? "opacity-40 cursor-not-allowed"
+                        : "cursor-grab hover:scale-120"
+                    }`}
+                    draggable={!isPlaced}
+                    onDragStart={(e) => handlePaletteDragStart(e, type)}
+                    title={`${type}-ミノ`}
                   >
-                    {Array.from({ length: 16 }).map((_, i) => {
-                      const c = i % 4;
-                      const r = Math.floor(i / 4);
-                      const isBlock = TETROMINO_SHAPES[type].some(
-                        ([x, y]) => x === c && y === r
-                      );
-                      return (
-                        <div
-                          key={i}
-                          className="rounded-sm"
-                          style={{
-                            width: "12px",
-                            height: "12px",
-                            backgroundColor: isBlock
-                              ? TETROMINO_COLORS[type][0]
-                              : "transparent",
-                          }}
-                        />
-                      );
-                    })}
+                    {/* ★★★ 変更点 ★★★ パレットのミノのセルサイズを12pxから14pxに拡大 */}
+                    <div
+                      className="grid gap-px"
+                      style={{ gridTemplateColumns: `repeat(4, 14px)` }}
+                    >
+                      {Array.from({ length: 16 }).map((_, i) => {
+                        const c = i % 4;
+                        const r = Math.floor(i / 4);
+                        const shape = TETROMINO_SHAPES[type as keyof typeof TETROMINO_SHAPES];
+                        const isBlock = shape.some(([x, y]) => x === c && y === r);
+                        return (
+                          <div
+                            key={i}
+                            className="rounded-sm"
+                            style={{
+                              width: "14px",
+                              height: "14px",
+                              backgroundColor: isBlock
+                                ? TETROMINO_COLORS[type as keyof typeof TETROMINO_COLORS][0]
+                                : "transparent",
+                            }}
+                          />
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
           </div>
         </div>
 
@@ -673,31 +674,30 @@ export default function DeckMain() {
             <GetContributionsButton />
           </div>
           {message && (
-            <div className="bg-blue-500 text-white px-4 py-2 rounded-lg mb-4 text-center w-full">
+            <div className="bg-blue-500 text-white px-4 py-2 rounded-lg mb-4 text-center w-full max-w-md">
               {message}
             </div>
           )}
           {error && (
-            <div className="bg-red-500 text-white px-4 py-2 rounded-lg mb-4 text-center w-full">
+            <div className="bg-red-500 text-white px-4 py-2 rounded-lg mb-4 text-center w-full max-w-md">
               エラー: {error}
             </div>
           )}
+           {/* ★★★ 変更点 ★★★ スコアのフォントサイズを4xlから5xlに、パディングとマージンも拡大 */}
           <div
-            className="text-4xl font-bold mb-6 p-4 rounded-xl"
+            className="text-5xl font-bold mb-8 p-5 rounded-xl"
             style={{
-              backgroundColor: UI_COLORS.darkGreen,
               color: UI_COLORS.lightText,
-              boxShadow: "0 0 15px rgba(86, 211, 100, 0.5)",
             }}
           >
             SCORE:{" "}
             <span style={{ color: UI_COLORS.brightGreen }}>{potentialScore}</span>
           </div>
-          <div className="mb-4">
+          <div className="mb-6">
             <SaveDeckButton
               tetrominosToSave={placedTetrominos.map((t) => {
                 const startDate =
-                  contributionGrid[t.y]?.[t.x]?.date ||
+                  (contributionGrid[t.y]?.[t.x]?.date) ||
                   new Date().toISOString().split("T")[0];
                 const positions = t.blockDetails.map((block: any) => ({
                   x: block.x,
@@ -733,16 +733,16 @@ export default function DeckMain() {
                 <p className="text-white text-2xl">Loading...</p>
               </div>
             ) : (
-              Array.from({ length: GRID_HEIGHT * GRID_WIDTH }).map((_, i) => {
+              contributionGrid.flat().map((cell, i) => {
                 const x = i % GRID_WIDTH;
                 const y = Math.floor(i / GRID_WIDTH);
-                const level = contributionGrid[y]?.[x]?.level ?? 0;
+                // 変更した方がいいかもしれない点 グリッドセルのサイズに合わせてw,hをw-10, h-10に拡大
                 return (
                   <div
                     key={`${x}-${y}`}
-                    className="w-9 h-9 rounded-sm box-border"
+                    className="w-9 h-9 rounded-sm box-border"  //ここ
                     style={{
-                      backgroundColor: getGrassColorFromLevel(level),
+                      backgroundColor: getGrassColorFromLevel(cell.level),
                       border: `1px solid ${UI_COLORS.darkBackground}`,
                     }}
                   />
@@ -776,15 +776,16 @@ export default function DeckMain() {
                   {blockDetails.map((block: any, index: number) => {
                     const relativeX = block.x - x;
                     const relativeY = block.y - y;
+                    // 変更した方がいいかもしれない点 テトリミノのセルサイズに合わせてw,hをw-10, h-10に拡大
                     return (
                       <div
                         key={`${id}-${index}-solid`}
-                        className="absolute w-9 h-9 rounded-sm box-border"
+                        className="absolute w-9 h-9 rounded-sm box-border" //ここ
                         style={{
                           left: `${relativeX * CELL_PX_SIZE}px`,
                           top: `${relativeY * CELL_PX_SIZE}px`,
                           backgroundColor:
-                            TETROMINO_COLORS[type][block.colorIndex] ??
+                            TETROMINO_COLORS[type as keyof typeof TETROMINO_COLORS][block.colorIndex] ??
                             UI_COLORS.darkBackground,
                           border: "1px solid rgba(255,255,255,0.2)",
                         }}
@@ -794,29 +795,32 @@ export default function DeckMain() {
                   {/* ホバー時のオーバーレイとボタン */}
                   <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity">
                     {/* テトリミノの形に合わせた影 */}
+                     {/*  変更した方がいいかもしれない点 テトリミノのセルサイズに合わせてw,hをw-10, h-10に拡大 */}
                     {blockDetails.map((block: any, index: number) => {
                       const relativeX = block.x - x;
                       const relativeY = block.y - y;
                       return (
                         <div
                           key={`${id}-${index}-overlay`}
-                          className="absolute w-9 h-9 rounded-sm bg-black bg-opacity-50"
+                          className="absolute w-9 h-9 rounded-sm bg-black bg-opacity-50"   //ここ
                           style={{
                             left: `${relativeX * CELL_PX_SIZE}px`,
                             top: `${relativeY * CELL_PX_SIZE}px`,
+                            backgroundColor: "rgba(255,255,255,0.5)", // ← 透明度のある白色に変更
                           }}
                         />
                       );
                     })}
                     {/* 影の上に表示されるボタン */}
-                    <div className="absolute inset-0 flex items-center justify-center space-x-1">
+                    <div className="absolute inset-0 flex items-center justify-center space-x-2">
+                       {/* ★★★ 変更点 ★★★ 回転・削除ボタンのサイズ、パディング、アイコンサイズを拡大 */}
                       <button
                         onClick={() => handleRotate(id)}
-                        className="bg-blue-600 text-white p-1.5 rounded-full shadow-md hover:bg-blue-700"
+                        className="bg-blue-600 text-white p-2 rounded-full shadow-md hover:bg-blue-700"
                         title="回転"
                       >
                         <svg
-                          className="w-5 h-5"
+                          className="w-6 h-6"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -831,11 +835,11 @@ export default function DeckMain() {
                       </button>
                       <button
                         onClick={() => handleDelete(id)}
-                        className="bg-red-600 text-white p-1.5 rounded-full shadow-md hover:bg-red-700"
+                        className="bg-red-600 text-white p-2 rounded-full shadow-md hover:bg-red-700"
                         title="削除"
                       >
                         <svg
-                          className="w-5 h-5"
+                          className="w-6 h-6"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
