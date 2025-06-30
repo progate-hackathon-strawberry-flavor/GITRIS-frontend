@@ -80,3 +80,9 @@ body {
 * {
   font-family: inherit;
 }
+
+.main-content {
+  /* この値は、実際のヘッダーの高さに合わせて調整してください。 */
+  /* 前回のコード例から、ヘッダーの高さを66pxと仮定しています。 */
+  padding-top: 66px; 
+}

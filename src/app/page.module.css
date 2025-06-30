@@ -22,6 +22,7 @@
   right: 20px;
   display: flex;
   gap: 10px;
+  margin-top: 66px;
 }
 
 /* アイコンボタンの共通スタイル */
@@ -114,3 +115,4 @@
   overflow-x: auto;
   color: #f0f5fa; /* テキスト色を調整 */
 }
+
