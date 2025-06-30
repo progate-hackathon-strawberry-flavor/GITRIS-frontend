@@ -724,6 +724,7 @@ export default function DeckMain() {
             style={{
               gridTemplateColumns: `repeat(${GRID_WIDTH}, ${CELL_PX_SIZE}px)`,
               gridTemplateRows: `repeat(${GRID_HEIGHT}, ${CELL_PX_SIZE}px)`,
+              border: `2px solid ${UI_COLORS.lightText}`,
             }}
             onDrop={handleDrop}
             onDragOver={handleDragOver}
