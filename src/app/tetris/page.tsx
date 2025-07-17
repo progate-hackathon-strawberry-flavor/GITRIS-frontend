@@ -43,7 +43,7 @@ export interface PlayerState {
 }
 
 export interface GameResult {
-  winner?: string;
+  winner: string | null;
   player1_score: number;
   player2_score: number;
   reason: 'time_up' | 'game_over' | 'disconnect';
@@ -55,20 +55,13 @@ export default function TetrisGame() {
   const [gamePhase, setGamePhase] = useState<GamePhase>('passcode_entry');
   const [passcode, setPasscode] = useState<string>('');
   const [gameSession, setGameSession] = useState<GameSession | null>(null);
-  const [gameResult, setGameResult] = useState<GameResult | null>(null);
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<'disconnected' | 'connecting' | 'connected'>('disconnected');
+  const [gameResult, setGameResult] = useState<GameResult | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
-  useEffect(() => {
-    return () => {
-      if (socket) {
-        socket.close();
-      }
-    };
-  }, [socket]);
-
-  const handlePasscodeSubmit = (passcode: string) => {
-    setPasscode(passcode);
+  const handlePasscodeSubmit = (inputPasscode: string) => {
+    setPasscode(inputPasscode);
     setGamePhase('waiting');
   };
 
@@ -79,26 +72,26 @@ export default function TetrisGame() {
   const handleGameEnd = (result: GameResult) => {
     setGameResult(result);
     setGamePhase('game_over');
-    
-    // ゲーム終了時にWebSocket接続を切断
-    if (socket && socket.readyState === WebSocket.OPEN) {
-      console.log('🔌 ゲーム終了時WebSocket切断');
-      socket.close();
-    }
-    setConnectionStatus('disconnected');
   };
 
   const handleReturnToEntry = () => {
+    setGamePhase('passcode_entry');
     setPasscode('');
     setGameSession(null);
-    setGameResult(null);
-    setGamePhase('passcode_entry');
-    if (socket) {
-      socket.close();
-      setSocket(null);
-    }
+    setSocket(null);
     setConnectionStatus('disconnected');
+    setGameResult(null);
+    setCurrentUserId(null);
   };
+
+  // WebSocketの自動切断処理
+  useEffect(() => {
+    return () => {
+      if (socket) {
+        socket.close();
+      }
+    };
+  }, [socket]);
 
   const renderCurrentPhase = () => {
     switch (gamePhase) {
@@ -120,6 +113,7 @@ export default function TetrisGame() {
             setGameSession={setGameSession}
             setSocket={setSocket}
             setConnectionStatus={setConnectionStatus}
+            setCurrentUserId={setCurrentUserId}
           />
         );
       
@@ -130,6 +124,7 @@ export default function TetrisGame() {
             socket={socket}
             onGameEnd={handleGameEnd}
             setGameSession={setGameSession}
+            currentUserId={currentUserId}
           />
         );
       

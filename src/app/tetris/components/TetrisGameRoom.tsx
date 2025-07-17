@@ -5,30 +5,58 @@ import { GameSession, PlayerState, GameResult } from '../page';
 import TetrisBoard from './TetrisBoard';
 import TetrisMiniBoard from './TetrisMiniBoard';
 import GameControls from './GameControls';
-import { useUserDisplayName } from '@/hooks/useAuth';
+import { useUserDisplayName, useAuth } from '@/hooks/useAuth';
+import { createClient } from '@/lib/supabase/client';
 
 interface TetrisGameRoomProps {
   gameSession: GameSession | null;
   socket: WebSocket | null;
   onGameEnd: (result: GameResult) => void;
   setGameSession: (session: GameSession) => void;
+  currentUserId: string | null;
 }
 
 export default function TetrisGameRoom({
   gameSession,
   socket,
   onGameEnd,
-  setGameSession
+  setGameSession,
+  currentUserId
 }: TetrisGameRoomProps) {
   const [logs, setLogs] = useState<string[]>([]);
   const [gameEnded, setGameEnded] = useState<boolean>(false);
+  // const [currentUserId, setCurrentUserId] = useState<string | null>(null); // この行は削除
 
   // タッチ操作のための状態管理
   const [touchStart, setTouchStart] = useState<{ x: number; y: number; time: number } | null>(null);
   const [isLongPress, setIsLongPress] = useState<boolean>(false);
   const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
 
-  // ユーザー名を取得するフック
+  // 認証情報を取得
+  const { user } = useAuth();
+
+  // プレイヤーの役割を判定
+  const isCurrentPlayerOne = currentUserId && gameSession?.player1?.user_id === currentUserId;
+  const isCurrentPlayerTwo = currentUserId && gameSession?.player2?.user_id === currentUserId;
+  
+  // 自分と相手の情報を決定
+  const myPlayerState = isCurrentPlayerOne ? gameSession?.player1 : 
+                       isCurrentPlayerTwo ? gameSession?.player2 : 
+                       gameSession?.player1; // フォールバック
+
+  const opponentPlayerState = isCurrentPlayerOne ? gameSession?.player2 : 
+                             isCurrentPlayerTwo ? gameSession?.player1 : 
+                             gameSession?.player2; // フォールバック
+
+  const myPlayerName = isCurrentPlayerOne ? useUserDisplayName(gameSession?.player1?.user_id || null).displayName : 
+                      isCurrentPlayerTwo ? useUserDisplayName(gameSession?.player2?.user_id || null).displayName : 
+                      'プレイヤー1';
+
+  const opponentPlayerName = isCurrentPlayerOne ? useUserDisplayName(gameSession?.player2?.user_id || null).displayName : 
+                            isCurrentPlayerTwo ? useUserDisplayName(gameSession?.player1?.user_id || null).displayName : 
+                            'プレイヤー2';
+
+  // ユーザー名を取得するフック（PC版レイアウト用）
   const { displayName: player1Name } = useUserDisplayName(gameSession?.player1?.user_id || null);
   const { displayName: player2Name } = useUserDisplayName(gameSession?.player2?.user_id || null);
 
@@ -596,30 +624,30 @@ export default function TetrisGameRoom({
 
         {/* モバイル版テトリス風レイアウト */}
         <div className="mobile-tetris-layout">
-          {/* 上部エリア (Hold, Next, スコア) */}
+          {/* 上部エリア (Hold, Next, スコア) - 自分のデータを表示 */}
           <div className="top-area">
             {/* Hold (左上) */}
             <div className="hold-area">
               <h4>HOLD</h4>
-              {gameSession.player1 && (
+              {myPlayerState && (
                 <TetrisMiniBoard 
-                  piece={gameSession.player1.held_piece ? {
-                    type: gameSession.player1.held_piece.type,
-                    scoreData: gameSession.player1.held_piece.score_data
+                  piece={myPlayerState.held_piece ? {
+                    type: myPlayerState.held_piece.type,
+                    scoreData: myPlayerState.held_piece.score_data
                   } : null} 
                 />
               )}
             </div>
             
-            {/* 中央のスコアエリア */}
+            {/* 中央のスコアエリア - 自分のスコア */}
             <div className="score-area">
-              {gameSession.player1 && (
+              {myPlayerState && (
                 <div className="player-score">
                   <div className="score-label">SCORE</div>
-                  <div className="score-value">{gameSession.player1.score}</div>
+                  <div className="score-value">{myPlayerState.score}</div>
                   <div className="level-lines">
-                    <span>LEVEL {gameSession.player1.level}</span>
-                    <span>LINES {gameSession.player1.lines_cleared}</span>
+                    <span>LEVEL {myPlayerState.level}</span>
+                    <span>LINES {myPlayerState.lines_cleared}</span>
                   </div>
                 </div>
               )}
@@ -628,11 +656,11 @@ export default function TetrisGameRoom({
             {/* Next (右上) */}
             <div className="next-area">
               <h4>NEXT</h4>
-              {gameSession.player1 && (
+              {myPlayerState && (
                 <TetrisMiniBoard 
-                  piece={gameSession.player1.next_piece ? {
-                    type: gameSession.player1.next_piece.type,
-                    scoreData: gameSession.player1.next_piece.score_data
+                  piece={myPlayerState.next_piece ? {
+                    type: myPlayerState.next_piece.type,
+                    scoreData: myPlayerState.next_piece.score_data
                   } : null} 
                 />
               )}
@@ -641,38 +669,38 @@ export default function TetrisGameRoom({
 
           {/* メインゲームエリア */}
           <div className="main-game-area">
-            {/* 相手のボード (左側) */}
+            {/* 相手のボード (左側・小さく表示) */}
             <div className="opponent-area">
-              {gameSession.player2 && (
+              {opponentPlayerState && (
                 <>
                   <div className="opponent-header">
                     <h5>対戦相手</h5>
-                    <span className="opponent-name">{player2Name}</span>
+                    <span className="opponent-name">{opponentPlayerName}</span>
                   </div>
                   <TetrisBoard
-                    board={gameSession.player2.board}
-                    currentPiece={gameSession.player2.current_piece}
-                    contributionScores={gameSession.player2.contribution_scores}
-                    currentPieceScores={gameSession.player2.current_piece_scores}
+                    board={opponentPlayerState.board}
+                    currentPiece={opponentPlayerState.current_piece}
+                    contributionScores={opponentPlayerState.contribution_scores}
+                    currentPieceScores={opponentPlayerState.current_piece_scores}
                   />
                   <div className="opponent-stats">
-                    <div>スコア: {gameSession.player2.score}</div>
-                    <div className={gameSession.player2.is_game_over ? 'game-over' : 'playing'}>
-                      {gameSession.player2.is_game_over ? 'GAME OVER' : 'PLAYING'}
+                    <div>スコア: {opponentPlayerState.score}</div>
+                    <div className={opponentPlayerState.is_game_over ? 'game-over' : 'playing'}>
+                      {opponentPlayerState.is_game_over ? 'GAME OVER' : 'PLAYING'}
                     </div>
                   </div>
                 </>
               )}
             </div>
 
-            {/* メインプレイヤーのボード (中央) */}
+            {/* メインプレイヤーのボード (中央・大きく表示) */}
             <div className="main-player-area">
-              {gameSession.player1 && (
+              {myPlayerState && (
                 <TetrisBoard
-                  board={gameSession.player1.board}
-                  currentPiece={gameSession.player1.current_piece}
-                  contributionScores={gameSession.player1.contribution_scores}
-                  currentPieceScores={gameSession.player1.current_piece_scores}
+                  board={myPlayerState.board}
+                  currentPiece={myPlayerState.current_piece}
+                  contributionScores={myPlayerState.contribution_scores}
+                  currentPieceScores={myPlayerState.current_piece_scores}
                 />
               )}
             </div>

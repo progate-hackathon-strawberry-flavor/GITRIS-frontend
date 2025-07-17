@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useAuth } from '@/hooks/useAuth';
 import { GameSession } from '../page';
+import { useAuth } from '@/hooks/useAuth';
 import { useUserDisplayName } from '@/hooks/useAuth';
 import { createClient } from '@/lib/supabase/client';
 
@@ -13,8 +13,9 @@ interface WaitingRoomProps {
   onGameStart: () => void;
   onReturnToEntry: () => void;
   setGameSession: (session: GameSession) => void;
-  setSocket: (socket: WebSocket) => void;
+  setSocket: (socket: WebSocket | null) => void;
   setConnectionStatus: (status: 'disconnected' | 'connecting' | 'connected') => void;
+  setCurrentUserId: (userId: string | null) => void;
 }
 
 export default function WaitingRoom({
@@ -25,7 +26,8 @@ export default function WaitingRoom({
   onReturnToEntry,
   setGameSession,
   setSocket,
-  setConnectionStatus
+  setConnectionStatus,
+  setCurrentUserId
 }: WaitingRoomProps) {
   const { user } = useAuth();
   const [authToken, setAuthToken] = useState<string | null>(null);
@@ -136,6 +138,7 @@ export default function WaitingRoom({
           const { data: { session } } = await supabase.auth.getSession();
           if (session?.access_token) {
       setAuthToken(session.access_token);
+      setCurrentUserId(user.id); // 認証済みユーザーIDを設定
       console.log('🔐 Authenticated session found, using JWT token');
           } else {
             setAuthToken('BYPASS_AUTH');
@@ -154,7 +157,7 @@ export default function WaitingRoom({
     };
     
     getToken();
-  }, [user]);
+  }, [user, setCurrentUserId]);
 
   const joinByPasscode = async () => {
     if (hasJoined || joinInProgress.current) {
@@ -194,6 +197,7 @@ export default function WaitingRoom({
         // レスポンスからUserIDを取得（認証バイパス時）
         if (data.user_id) {
           setTestUserId(data.user_id);
+          setCurrentUserId(data.user_id); // 認証バイパス時のユーザーIDを設定
         }
         
         // 入室成功後、ゲームセッション情報のポーリングを開始
