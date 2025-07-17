@@ -408,27 +408,27 @@ export default function TetrisGameRoom({
 
   if (!gameSession) {
     return (
-      <div className="game-loading">
+      <div className="game-loading mobile-game-loading">
         <h2>ゲームデータを読み込み中...</h2>
       </div>
     );
   }
 
   return (
-    <div className="tetris-game-room">
-      <div className="game-header">
-        <div className="game-status">
+    <div className="tetris-game-room mobile-responsive">
+      <div className="game-header mobile-game-header">
+        <div className="game-status mobile-game-status">
           <span className="status-label">状態:</span>
           <span className="status-value">{gameSession.status}</span>
         </div>
         {gameSession.time_limit && (
-          <div className="time-info">
+          <div className="time-info mobile-time-info">
             <span className="time-label">制限時間:</span>
             <span className="time-value">{formatTime(gameSession.time_limit)}</span>
           </div>
         )}
         {gameSession.remaining_time !== undefined && (
-          <div className="time-info">
+          <div className="time-info mobile-time-info">
             <span className="time-label">残り時間:</span>
             <span className={`time-value ${getTimeColor(gameSession.remaining_time)}`}>
               {formatTime(gameSession.remaining_time)}
@@ -437,73 +437,95 @@ export default function TetrisGameRoom({
         )}
       </div>
 
-      <div className="game-content">
-        {/* ゲームボードエリア */}
-        <div className="game-boards">
-          {/* Player 1 */}
-          <div className="player-area player1">
-            <div className="player-header">
-              <h3>👤 Player 1</h3>
-              <span className="player-name">
-                {player1Name}
-              </span>
+      <div className="game-content mobile-game-content">
+        {/* PC版レイアウト */}
+        <div className="pc-layout">
+          {/* ゲームボードエリア */}
+          <div className="game-boards">
+            {/* Player 1 */}
+            <div className="player-area player1">
+              <div className="player-header">
+                <h3>👤 Player 1</h3>
+                <span className="player-name">
+                  {player1Name}
+                </span>
+              </div>
+              
+              {gameSession.player1 && (
+                <>
+                  <TetrisBoard
+                    board={gameSession.player1.board}
+                    currentPiece={gameSession.player1.current_piece}
+                    contributionScores={gameSession.player1.contribution_scores}
+                    currentPieceScores={gameSession.player1.current_piece_scores}
+                  />
+                  
+                  <div className="player-stats">
+                    <div className="stat-item">
+                      <span className="stat-label">スコア</span>
+                      <span className="stat-value">{gameSession.player1.score}</span>
+                    </div>
+                    <div className="stat-item">
+                      <span className="stat-label">レベル</span>
+                      <span className="stat-value">{gameSession.player1.level}</span>
+                    </div>
+                    <div className="stat-item">
+                      <span className="stat-label">ライン</span>
+                      <span className="stat-value">{gameSession.player1.lines_cleared}</span>
+                    </div>
+                    <div className="stat-item">
+                      <span className="stat-label">状態</span>
+                      <span className={`stat-value ${gameSession.player1.is_game_over ? 'game-over' : 'playing'}`}>
+                        {gameSession.player1.is_game_over ? 'GAME OVER' : 'PLAYING'}
+                      </span>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
-            
-            {gameSession.player1 && (
-              <>
-                <TetrisBoard
-                  board={gameSession.player1.board}
-                  currentPiece={gameSession.player1.current_piece}
-                  contributionScores={gameSession.player1.contribution_scores}
-                  currentPieceScores={gameSession.player1.current_piece_scores}
-                />
-                
-                <div className="player-stats">
-                  <div className="stat-item">
-                    <span className="stat-label">スコア</span>
-                    <span className="stat-value">{gameSession.player1.score}</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-label">レベル</span>
-                    <span className="stat-value">{gameSession.player1.level}</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-label">ライン</span>
-                    <span className="stat-value">{gameSession.player1.lines_cleared}</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-label">状態</span>
-                    <span className={`stat-value ${gameSession.player1.is_game_over ? 'game-over' : 'playing'}`}>
-                      {gameSession.player1.is_game_over ? 'GAME OVER' : 'PLAYING'}
-                    </span>
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
 
-                      {/* 中央のミニボード（Hold/Next）と操作エリア */}
+            {/* 中央のミニボード（Hold/Next）と操作エリア */}
             <div className="center-mini-boards">
               {gameSession.player1 && gameSession.player2 && (
                 <>
                   <div className="mini-boards-row">
                     <div className="player1-hold">
                       <h4>Player 1 Hold</h4>
-                      <TetrisMiniBoard piece={gameSession.player1.held_piece} />
+                      <TetrisMiniBoard 
+                        piece={gameSession.player1.held_piece ? {
+                          type: gameSession.player1.held_piece.type,
+                          scoreData: gameSession.player1.held_piece.score_data
+                        } : null} 
+                      />
                     </div>
                     <div className="player2-hold">
                       <h4>Player 2 Hold</h4>
-                      <TetrisMiniBoard piece={gameSession.player2.held_piece} />
+                      <TetrisMiniBoard 
+                        piece={gameSession.player2.held_piece ? {
+                          type: gameSession.player2.held_piece.type,
+                          scoreData: gameSession.player2.held_piece.score_data
+                        } : null} 
+                      />
                     </div>
                   </div>
                   <div className="mini-boards-row">
                     <div className="player1-next">
                       <h4>Player 1 Next</h4>
-                      <TetrisMiniBoard piece={gameSession.player1.next_piece} />
+                      <TetrisMiniBoard 
+                        piece={gameSession.player1.next_piece ? {
+                          type: gameSession.player1.next_piece.type,
+                          scoreData: gameSession.player1.next_piece.score_data
+                        } : null} 
+                      />
                     </div>
                     <div className="player2-next">
                       <h4>Player 2 Next</h4>
-                      <TetrisMiniBoard piece={gameSession.player2.next_piece} />
+                      <TetrisMiniBoard 
+                        piece={gameSession.player2.next_piece ? {
+                          type: gameSession.player2.next_piece.type,
+                          scoreData: gameSession.player2.next_piece.score_data
+                        } : null} 
+                      />
                     </div>
                   </div>
                   
@@ -528,50 +550,165 @@ export default function TetrisGameRoom({
               )}
             </div>
 
-          {/* Player 2 */}
-          <div className="player-area player2">
-            <div className="player-header">
-              <h3>👤 Player 2</h3>
-              <span className="player-name">
-                {player2Name}
-              </span>
+            {/* Player 2 */}
+            <div className="player-area player2">
+              <div className="player-header">
+                <h3>👤 Player 2</h3>
+                <span className="player-name">
+                  {player2Name}
+                </span>
+              </div>
+              
+              {gameSession.player2 && (
+                <>
+                  <TetrisBoard
+                    board={gameSession.player2.board}
+                    currentPiece={gameSession.player2.current_piece}
+                    contributionScores={gameSession.player2.contribution_scores}
+                    currentPieceScores={gameSession.player2.current_piece_scores}
+                  />
+                  
+                  <div className="player-stats">
+                    <div className="stat-item">
+                      <span className="stat-label">スコア</span>
+                      <span className="stat-value">{gameSession.player2.score}</span>
+                    </div>
+                    <div className="stat-item">
+                      <span className="stat-label">レベル</span>
+                      <span className="stat-value">{gameSession.player2.level}</span>
+                    </div>
+                    <div className="stat-item">
+                      <span className="stat-label">ライン</span>
+                      <span className="stat-value">{gameSession.player2.lines_cleared}</span>
+                    </div>
+                    <div className="stat-item">
+                      <span className="stat-label">状態</span>
+                      <span className={`stat-value ${gameSession.player2.is_game_over ? 'game-over' : 'playing'}`}>
+                        {gameSession.player2.is_game_over ? 'GAME OVER' : 'PLAYING'}
+                      </span>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
-            
-            {gameSession.player2 && (
-              <>
-                <TetrisBoard
-                  board={gameSession.player2.board}
-                  currentPiece={gameSession.player2.current_piece}
-                  contributionScores={gameSession.player2.contribution_scores}
-                  currentPieceScores={gameSession.player2.current_piece_scores}
-                />
-                
-                <div className="player-stats">
-                  <div className="stat-item">
-                    <span className="stat-label">スコア</span>
-                    <span className="stat-value">{gameSession.player2.score}</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-label">レベル</span>
-                    <span className="stat-value">{gameSession.player2.level}</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-label">ライン</span>
-                    <span className="stat-value">{gameSession.player2.lines_cleared}</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-label">状態</span>
-                    <span className={`stat-value ${gameSession.player2.is_game_over ? 'game-over' : 'playing'}`}>
-                      {gameSession.player2.is_game_over ? 'GAME OVER' : 'PLAYING'}
-                    </span>
-                  </div>
-                </div>
-              </>
-            )}
           </div>
         </div>
 
+        {/* モバイル版テトリス風レイアウト */}
+        <div className="mobile-tetris-layout">
+          {/* 上部エリア (Hold, Next, スコア) */}
+          <div className="top-area">
+            {/* Hold (左上) */}
+            <div className="hold-area">
+              <h4>HOLD</h4>
+              {gameSession.player1 && (
+                <TetrisMiniBoard 
+                  piece={gameSession.player1.held_piece ? {
+                    type: gameSession.player1.held_piece.type,
+                    scoreData: gameSession.player1.held_piece.score_data
+                  } : null} 
+                />
+              )}
+            </div>
+            
+            {/* 中央のスコアエリア */}
+            <div className="score-area">
+              {gameSession.player1 && (
+                <div className="player-score">
+                  <div className="score-label">SCORE</div>
+                  <div className="score-value">{gameSession.player1.score}</div>
+                  <div className="level-lines">
+                    <span>LEVEL {gameSession.player1.level}</span>
+                    <span>LINES {gameSession.player1.lines_cleared}</span>
+                  </div>
+                </div>
+              )}
+            </div>
 
+            {/* Next (右上) */}
+            <div className="next-area">
+              <h4>NEXT</h4>
+              {gameSession.player1 && (
+                <TetrisMiniBoard 
+                  piece={gameSession.player1.next_piece ? {
+                    type: gameSession.player1.next_piece.type,
+                    scoreData: gameSession.player1.next_piece.score_data
+                  } : null} 
+                />
+              )}
+            </div>
+          </div>
+
+          {/* メインゲームエリア */}
+          <div className="main-game-area">
+            {/* 相手のボード (左側) */}
+            <div className="opponent-area">
+              {gameSession.player2 && (
+                <>
+                  <div className="opponent-header">
+                    <h5>対戦相手</h5>
+                    <span className="opponent-name">{player2Name}</span>
+                  </div>
+                  <TetrisBoard
+                    board={gameSession.player2.board}
+                    currentPiece={gameSession.player2.current_piece}
+                    contributionScores={gameSession.player2.contribution_scores}
+                    currentPieceScores={gameSession.player2.current_piece_scores}
+                  />
+                  <div className="opponent-stats">
+                    <div>スコア: {gameSession.player2.score}</div>
+                    <div className={gameSession.player2.is_game_over ? 'game-over' : 'playing'}>
+                      {gameSession.player2.is_game_over ? 'GAME OVER' : 'PLAYING'}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* メインプレイヤーのボード (中央) */}
+            <div className="main-player-area">
+              {gameSession.player1 && (
+                <TetrisBoard
+                  board={gameSession.player1.board}
+                  currentPiece={gameSession.player1.current_piece}
+                  contributionScores={gameSession.player1.contribution_scores}
+                  currentPieceScores={gameSession.player1.current_piece_scores}
+                />
+              )}
+            </div>
+
+            {/* 左下の操作説明エリア */}
+            <div className="control-help-area">
+              <div className="control-help-mobile">
+                <div className="help-section">
+                  <span className="help-title">⌨️ キー操作</span>
+                  <div className="help-text">
+                    <div>←→ 移動</div>
+                    <div>↑ ハードドロップ</div>
+                    <div>↓ ソフトドロップ</div>
+                    <div>Space 回転</div>
+                    <div>C ホールド</div>
+                  </div>
+                </div>
+                <div className="help-section">
+                  <span className="help-title">📱 タッチ操作</span>
+                  <div className="help-text">
+                    <div>左右フリック 移動</div>
+                    <div>上フリック ハード</div>
+                    <div>下フリック ソフト</div>
+                    <div>タップ 回転</div>
+                    <div>長押し ホールド</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 操作エリア */}
+          <div className="controls-area">
+            {/* コントローラーボタンを削除 */}
+          </div>
+        </div>
       </div>
     </div>
   );

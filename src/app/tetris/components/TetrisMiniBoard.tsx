@@ -5,6 +5,7 @@ import { useMemo } from 'react';
 interface TetrisMiniBoardProps {
   piece?: {
     type: number;
+    scoreData?: { [key: string]: number };
   } | null;
 }
 
@@ -21,63 +22,109 @@ const pieceShapes: { [key: number]: number[][] } = {
   6: [[2, 0], [0, 1], [1, 1], [2, 1]], // TypeL
 };
 
+// スコアに基づく色分けクラスを返す関数
+function getScoreClass(score: number): string {
+  let scoreClass = '';
+  
+  // スコアに応じて5段階の色分けクラスを返す
+  if (score >= 100) scoreClass = 'score-very-high'; // 非常に高い貢献度 (100+)
+  else if (score >= 50) scoreClass = 'score-high';       // 高い貢献度 (50-99)
+  else if (score >= 20) scoreClass = 'score-medium';     // 中程度の貢献度 (20-49)
+  else if (score >= 5) scoreClass = 'score-low';         // 低い貢献度 (5-19)
+  else scoreClass = 'score-very-low';                    // 非常に低い貢献度 (0-4)
+  
+  // デバッグ用のコンソールログ（常に表示）
+  console.log(`[TetrisMiniBoard getScoreClass] スコア: ${score} → クラス: ${scoreClass}`);
+  
+  return scoreClass;
+}
+
 export default function TetrisMiniBoard({ piece }: TetrisMiniBoardProps) {
-  const miniBoard = useMemo(() => {
-    // 4x4の空のボードを作成
-    const board: Array<Array<{
-      type: number;
-      hasBlock: boolean;
-    }>> = Array(MINI_BOARD_SIZE).fill(null).map(() =>
-      Array(MINI_BOARD_SIZE).fill(null).map(() => ({
-        type: 0,
-        hasBlock: false
-      }))
+  // デバッグ用ログ（常に表示）
+  console.log('=== TetrisMiniBoard デバッグ ===');
+  console.log('piece:', piece);
+  
+  if (!piece) {
+    console.log('TetrisMiniBoard: ピースがnull');
+    return (
+      <div className="tetris-mini-board mobile-mini-board">
+        {Array(16).fill(null).map((_, index) => (
+          <div key={index} className="mini-cell mobile-mini-cell" />
+        ))}
+      </div>
     );
+  }
 
-    // ピースがある場合は描画
-    if (piece && typeof piece.type === 'number') {
-      const pieceBlocks = pieceShapes[piece.type];
-      
-      if (pieceBlocks && pieceBlocks.length > 0) {
-        // ピースを中央寄せするためのオフセット計算
-        const minX = Math.min(...pieceBlocks.map(b => b[0]));
-        const minY = Math.min(...pieceBlocks.map(b => b[1]));
-        const maxX = Math.max(...pieceBlocks.map(b => b[0]));
-        const maxY = Math.max(...pieceBlocks.map(b => b[1]));
-        
-        const pieceWidth = maxX - minX + 1;
-        const pieceHeight = maxY - minY + 1;
-        const offsetX = Math.floor((MINI_BOARD_SIZE - pieceWidth) / 2) - minX;
-        const offsetY = Math.floor((MINI_BOARD_SIZE - pieceHeight) / 2) - minY;
-        
-        for (const block of pieceBlocks) {
-          const row = block[1] + offsetY;
-          const col = block[0] + offsetX;
-          
-          if (row >= 0 && row < MINI_BOARD_SIZE && col >= 0 && col < MINI_BOARD_SIZE) {
-            board[row][col].type = piece.type;
-            board[row][col].hasBlock = true;
-          }
-        }
-      }
-    }
+  console.log('TetrisMiniBoard: ピース処理開始', piece.type, piece.scoreData);
 
-    return board;
-  }, [piece]);
+  const pieceData = pieceShapes[piece.type];
+  if (!pieceData) {
+    console.log('TetrisMiniBoard: 不正なピースタイプ', piece.type);
+    return (
+      <div className="tetris-mini-board mobile-mini-board">
+        {Array(16).fill(null).map((_, index) => (
+          <div key={index} className="mini-cell mobile-mini-cell" />
+        ))}
+      </div>
+    );
+  }
+
+  const shape = pieceData; // ミニボードは基本の形状のみ使用
+  console.log('TetrisMiniBoard: 形状データ', shape);
 
   return (
-    <div className="tetris-mini-board">
-      {miniBoard.map((row, rowIndex) =>
-        row.map((cell, colIndex) => (
+    <div className="tetris-mini-board mobile-mini-board">
+      {Array(16).fill(null).map((_, index) => {
+        const row = Math.floor(index / 4);
+        const col = index % 4;
+        
+        // このセルがピースの一部かどうかチェック
+        const blockIndex = shape.findIndex(([x, y]) => x === col && y === row);
+        const isBlock = blockIndex !== -1;
+        
+        let scoreClass = '';
+        if (isBlock && piece.scoreData) {
+          console.log(`TetrisMiniBoard: ブロック${blockIndex}のスコア検索, 相対座標=(${col},${row})`);
+          console.log('scoreData:', piece.scoreData);
+          
+          // 1. ブロックインデックスベースのキーを優先（最も一貫性がある）
+          const blockIndexKey = `${blockIndex}`;
+          let score = piece.scoreData[blockIndexKey];
+          
+          // 2. フォールバック: テトリミノの相対座標をキーとしてスコアを取得
+          if (score === undefined) {
+            const relativeKey = `${col}_${row}`;
+            score = piece.scoreData[relativeKey];
+            console.log(`フォールバック: 相対座標キー="${relativeKey}", score=${score}`);
+          }
+          
+          console.log(`スコア検索: ブロック${blockIndex}のインデックスキー="${blockIndexKey}", score=${score}`);
+          
+          if (score !== undefined && score >= 0) {
+            scoreClass = getScoreClass(score);
+            console.log(`TetrisMiniBoard[${row},${col}]: ブロック${blockIndex}, score=${score}, class="${scoreClass}"`);
+          } else {
+            console.log(`TetrisMiniBoard[${row},${col}]: ブロック${blockIndex}, スコアが見つからない`);
+          }
+        }
+        
+        const classNames = `
+          mini-cell mobile-mini-cell
+          ${isBlock ? `type-${piece.type}` : ''}
+          ${scoreClass}
+        `.trim();
+        
+        if (isBlock) {
+          console.log(`[TetrisMiniBoard] Cell[${row},${col}]: type=${piece.type}, scoreClass="${scoreClass}", classes="${classNames}"`);
+        }
+        
+        return (
           <div
-            key={`${rowIndex}-${colIndex}`}
-            className={`
-              mini-cell
-              ${cell.hasBlock ? `type-${cell.type}` : ''}
-            `}
+            key={index}
+            className={classNames}
           />
-        ))
-      )}
+        );
+      })}
     </div>
   );
 } 

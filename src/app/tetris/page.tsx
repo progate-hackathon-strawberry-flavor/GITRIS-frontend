@@ -28,12 +28,15 @@ export interface PlayerState {
     x: number;
     y: number;
     rotation: number;
+    score_data?: { [key: string]: number };
   };
   next_piece?: {
     type: number;
+    score_data?: { [key: string]: number };
   };
   held_piece?: {
     type: number;
+    score_data?: { [key: string]: number };
   };
   contribution_scores?: { [key: string]: number };
   current_piece_scores?: { [key: string]: number };

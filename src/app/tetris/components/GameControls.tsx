@@ -6,50 +6,49 @@ interface GameControlsProps {
 
 export default function GameControls({ onAction }: GameControlsProps) {
   return (
-    <div className="game-controls">
-      <h4>🎮 ゲーム操作</h4>
-      <div className="controls-grid">
+    <div className="game-controls mobile-game-controls">
+      <div className="controls-grid mobile-controls-grid">
         <button
-          className="control-button move-left"
+          className="control-button move-left mobile-control-btn"
           onClick={() => onAction('move_left')}
           title="左移動 (←)"
         >
-          ⬅️ 左
+          ⬅️
         </button>
         <button
-          className="control-button move-right"
-          onClick={() => onAction('move_right')}
-          title="右移動 (→)"
-        >
-          ➡️ 右
-        </button>
-        <button
-          className="control-button rotate"
+          className="control-button rotate mobile-control-btn"
           onClick={() => onAction('rotate')}
           title="回転 (Space)"
         >
-          🔄 回転
+          🔄
         </button>
         <button
-          className="control-button soft-drop"
+          className="control-button move-right mobile-control-btn"
+          onClick={() => onAction('move_right')}
+          title="右移動 (→)"
+        >
+          ➡️
+        </button>
+        <button
+          className="control-button soft-drop mobile-control-btn"
           onClick={() => onAction('soft_drop')}
           title="ソフトドロップ (↓)"
         >
-          ⬇️ ソフト
+          ⬇️
         </button>
         <button
-          className="control-button hard-drop"
+          className="control-button hard-drop mobile-control-btn"
           onClick={() => onAction('hard_drop')}
           title="ハードドロップ (↑)"
         >
-          ⚡ ハード
+          ⚡
         </button>
         <button
-          className="control-button hold"
+          className="control-button hold mobile-control-btn"
           onClick={() => onAction('hold')}
           title="ホールド (C)"
         >
-          📦 ホールド
+          📦
         </button>
       </div>
     </div>

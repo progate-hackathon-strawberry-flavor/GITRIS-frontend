@@ -165,8 +165,8 @@ export default function WaitingRoom({
       joinInProgress.current = true; // ref による排他制御
       setHasJoined(true); // 実行フラグを設定
       
-      // TODO: 実際のDeckID取得処理を実装
-      const deckId = 'default_deck_id';
+      // ゲストユーザーの場合は"guest"を送信してバックエンドでゲストデッキを生成
+      const deckId = 'guest';
 
       // 環境変数からバックエンドURLを取得
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
