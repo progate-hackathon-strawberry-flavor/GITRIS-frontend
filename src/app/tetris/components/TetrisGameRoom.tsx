@@ -25,9 +25,8 @@ export default function TetrisGameRoom({
 }: TetrisGameRoomProps) {
   const [logs, setLogs] = useState<string[]>([]);
   const [gameEnded, setGameEnded] = useState<boolean>(false);
-  // const [currentUserId, setCurrentUserId] = useState<string | null>(null); // この行は削除
 
-  // タッチ操作のための状態管理
+  // タッチ関連の状態
   const [touchStart, setTouchStart] = useState<{ x: number; y: number; time: number } | null>(null);
   const [isLongPress, setIsLongPress] = useState<boolean>(false);
   const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
@@ -36,29 +35,20 @@ export default function TetrisGameRoom({
   const { user } = useAuth();
 
   // プレイヤーの役割を判定
-  const isCurrentPlayerOne = currentUserId && gameSession?.player1?.user_id === currentUserId;
-  const isCurrentPlayerTwo = currentUserId && gameSession?.player2?.user_id === currentUserId;
-  
-  // 自分と相手の情報を決定
-  const myPlayerState = isCurrentPlayerOne ? gameSession?.player1 : 
-                       isCurrentPlayerTwo ? gameSession?.player2 : 
-                       gameSession?.player1; // フォールバック
+  const isPlayer1 = currentUserId === gameSession?.player1?.user_id;
+  const isPlayer2 = currentUserId === gameSession?.player2?.user_id;
 
-  const opponentPlayerState = isCurrentPlayerOne ? gameSession?.player2 : 
-                             isCurrentPlayerTwo ? gameSession?.player1 : 
-                             gameSession?.player2; // フォールバック
+  // 自分と相手のデータを判定
+  const myPlayerState = isPlayer1 ? gameSession?.player1 : isPlayer2 ? gameSession?.player2 : null;
+  const opponentPlayerState = isPlayer1 ? gameSession?.player2 : isPlayer2 ? gameSession?.player1 : null;
 
-  const myPlayerName = isCurrentPlayerOne ? useUserDisplayName(gameSession?.player1?.user_id || null).displayName : 
-                      isCurrentPlayerTwo ? useUserDisplayName(gameSession?.player2?.user_id || null).displayName : 
-                      'プレイヤー1';
-
-  const opponentPlayerName = isCurrentPlayerOne ? useUserDisplayName(gameSession?.player2?.user_id || null).displayName : 
-                            isCurrentPlayerTwo ? useUserDisplayName(gameSession?.player1?.user_id || null).displayName : 
-                            'プレイヤー2';
-
-  // ユーザー名を取得するフック（PC版レイアウト用）
+  // プレイヤー名を取得
   const { displayName: player1Name } = useUserDisplayName(gameSession?.player1?.user_id || null);
   const { displayName: player2Name } = useUserDisplayName(gameSession?.player2?.user_id || null);
+  
+  // 自分と相手の名前を判定
+  const myPlayerName = isPlayer1 ? player1Name : isPlayer2 ? player2Name : 'Unknown';
+  const opponentPlayerName = isPlayer1 ? player2Name : isPlayer2 ? player1Name : 'Unknown';
 
   const addLog = (message: string) => {
     const timestamp = new Date().toLocaleTimeString();
