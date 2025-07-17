@@ -86,8 +86,7 @@ function getScoreClass(score: number): string {
   else if (score >= 5) scoreClass = 'score-low';         // 低い貢献度 (5-19)
   else scoreClass = 'score-very-low';                    // 非常に低い貢献度 (0-4)
   
-  // デバッグ用のコンソールログ（常に表示）
-  console.log(`[getScoreClass] スコア: ${score} → クラス: ${scoreClass}`);
+
   
   return scoreClass;
 }
@@ -100,15 +99,7 @@ export default function TetrisBoard({
 }: TetrisBoardProps) {
   
   // デバッグ用：スコアデータを確認（常に表示）
-  console.log('=== TetrisBoard デバッグ（詳細版） ===');
-  console.log('contributionScores全体:', contributionScores);
-  console.log('contributionScoresのキー数:', contributionScores ? Object.keys(contributionScores).length : 0);
-  if (contributionScores) {
-    console.log('contributionScoresのサンプルキー:', Object.keys(contributionScores).slice(0, 5));
-    console.log('contributionScoresのサンプル値:', Object.entries(contributionScores).slice(0, 5));
-  }
-  console.log('現在ピース:', currentPiece);
-  console.log('現在ピースのスコアデータ:', currentPiece?.score_data);
+
   
   const boardWithCurrentPiece = useMemo(() => {
     // ボードデータのコピーを作成
@@ -126,11 +117,11 @@ export default function TetrisBoard({
       }))
     );
 
-    console.log('ボードデータ処理開始...');
+
 
     // 1. 既存のボードデータを適用（配置済みブロック）
     if (board && Array.isArray(board)) {
-      console.log('配置済みブロック処理開始...');
+
       for (let row = 0; row < Math.min(BOARD_HEIGHT, board.length); row++) {
         if (Array.isArray(board[row])) {
           for (let col = 0; col < Math.min(BOARD_WIDTH, board[row].length); col++) {
@@ -162,10 +153,7 @@ export default function TetrisBoard({
               
               if (score !== undefined && score >= 0) {
                 boardCopy[row][col].scoreClass = getScoreClass(score);
-                console.log(`配置済み[${row},${col}]: type=${cellValue-1}, score=${score}, scoreClass="${boardCopy[row][col].scoreClass}", キー="${usedKey}"`);
-              } else {
-                console.log(`配置済み[${row},${col}]: type=${cellValue-1}, スコアが見つからない。試したキー:`, possibleKeys);
-              }
+                            }
             }
           }
         }
@@ -178,10 +166,9 @@ export default function TetrisBoard({
         typeof currentPiece.y === 'number' && 
         typeof currentPiece.type === 'number') {
       
-      console.log('現在ピース処理開始...', currentPiece);
+      
       const pieceBlocks = getPieceBlocks(currentPiece.type, currentPiece.rotation || 0);
-      console.log('ピースブロック相対座標:', pieceBlocks);
-      console.log('現在ピースのスコアデータ:', currentPiece.score_data);
+
       
       for (let blockIndex = 0; blockIndex < pieceBlocks.length; blockIndex++) {
         const block = pieceBlocks[blockIndex];
@@ -193,7 +180,6 @@ export default function TetrisBoard({
           boardCopy[boardRow][boardCol].isCurrent = true;
           boardCopy[boardRow][boardCol].isEmpty = false;
           
-          console.log(`現在ピース処理[${boardRow},${boardCol}]: ブロック${blockIndex}, type=${currentPiece.type}, 相対座標=(${block[0]},${block[1]})`);
           
           // 現在のピースの各マス目のスコアを適用
           // ブロックインデックスを基準にスコアを取得（回転に関係なく一貫性を保つ）
@@ -205,7 +191,7 @@ export default function TetrisBoard({
             score = currentPiece.score_data[blockIndexKey];
             
             if (score !== undefined) {
-              console.log(`✓ ブロック${blockIndex}スコア取得成功: インデックスキー="${blockIndexKey}", score=${score}`);
+
             }
             
             // 2. フォールバック: 現在の回転状態での相対座標キー
@@ -213,7 +199,7 @@ export default function TetrisBoard({
               const relativeKey = `${block[0]}_${block[1]}`;
               score = currentPiece.score_data[relativeKey];
               if (score !== undefined) {
-                console.log(`✓ ブロック${blockIndex}スコア取得成功: 相対座標キー="${relativeKey}", score=${score}`);
+
               }
             }
             
@@ -222,13 +208,13 @@ export default function TetrisBoard({
               const rotationKey = `rot_${currentPiece.rotation || 0}_${block[0]}_${block[1]}`;
               score = currentPiece.score_data[rotationKey];
               if (score !== undefined) {
-                console.log(`✓ ブロック${blockIndex}スコア取得成功: 回転キー="${rotationKey}", score=${score}`);
+
               }
             }
             
             // デバッグ: スコアが見つからない場合
             if (score === undefined) {
-              console.log(`❌ ブロック${blockIndex}スコア取得失敗: 利用可能キー=`, Object.keys(currentPiece.score_data));
+              
             }
           }
           
@@ -239,21 +225,18 @@ export default function TetrisBoard({
             score = currentPieceScores[blockIndexKey] || currentPieceScores[boardPosKey];
             
             if (score !== undefined) {
-              console.log(`✓ ブロック${blockIndex}スコア取得成功: フォールバック, score=${score}`);
+
             }
           }
           
           if (score !== undefined && score >= 0) {
             boardCopy[boardRow][boardCol].scoreClass = getScoreClass(score);
-            console.log(`🎨 現在ピース[${boardRow},${boardCol}]: ブロック${blockIndex}, score=${score}, class="${boardCopy[boardRow][boardCol].scoreClass}"`);
-          } else {
-            console.log(`⚠️ 現在ピース[${boardRow},${boardCol}]: ブロック${blockIndex}, スコアが見つからない`);
           }
         }
       }
     }
 
-    console.log('ボードデータ処理完了');
+    
     return boardCopy;
   }, [board, currentPiece, contributionScores, currentPieceScores]);
 
@@ -271,7 +254,7 @@ export default function TetrisBoard({
           
           // すべてのセルの情報をログ出力（重要なもののみ）
           if (!cell.isEmpty) {
-            console.log(`[TetrisBoard] Cell[${rowIndex},${colIndex}]: type=${cell.type}, scoreClass="${cell.scoreClass}", isCurrent=${cell.isCurrent}, classes="${classNames}"`);
+
           }
           
           return (

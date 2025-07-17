@@ -139,19 +139,19 @@ export default function WaitingRoom({
           if (session?.access_token) {
       setAuthToken(session.access_token);
       setCurrentUserId(user.id); // 認証済みユーザーIDを設定
-      console.log('🔐 Authenticated session found, using JWT token');
+      
           } else {
             setAuthToken('BYPASS_AUTH');
-            console.log('🔓 No access token found, using BYPASS_AUTH mode');
+    
           }
         } catch (error) {
           setAuthToken('BYPASS_AUTH');
-          console.log('🔓 Error getting session, using BYPASS_AUTH mode');
+  
         }
     } else {
       // 認証がない場合は認証バイパスモードで動作
       setAuthToken('BYPASS_AUTH');
-      console.log('🔓 No authentication session found, using BYPASS_AUTH mode');
+      
     }
     setIsInitialized(true); // 認証状態確定
     };
@@ -223,7 +223,7 @@ export default function WaitingRoom({
     
     // 手動接続時はUserID チェックを緩和（認証トークンまたはテストユーザーIDがあれば OK）
     if (!testUserId && !authToken) {
-      console.log('⚠️ No testUserId and no auth token, skipping WebSocket connection');
+
       setConnectionStatus('disconnected');
       setWsConnecting(false);
       return;

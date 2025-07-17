@@ -16,7 +16,7 @@ const GitHubicon = () => {
         data: { user },
       } = await supabase.auth.getUser();
 
-      console.log("user:", user);
+  
 
       if (user && user.id) {
         // usersテーブルからicon_urlとidを取得
