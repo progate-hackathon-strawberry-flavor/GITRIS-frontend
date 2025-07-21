@@ -16,7 +16,7 @@ const Header = () => {
         data: { user },
       } = await supabase.auth.getUser();
 
-      console.log("user:", user);
+  
 
       if (user && user.id) {
         // usersテーブルからicon_urlとidを取得
@@ -25,10 +25,7 @@ const Header = () => {
           .select('*')
           .eq("id", user.id)
           .single();
-          console.log(data);
-          console.log(error);
-          console.log(user.id);
-        console.log("Fetched user data:", data, "Error:", error);
+          
 
         if (!error && data) {
           setIconUrl(data.icon_url ?? null);

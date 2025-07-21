@@ -20,46 +20,46 @@
   --tetromino-i-5: #2C6E58; /* 最も暗い (Less Contribution) */
   
   /* Oミノ (黄色系) */
-  --tetromino-o-1: #F2E530;
-  --tetromino-o-2: #D5CA2B;
-  --tetromino-o-3: #B8AE24;
-  --tetromino-o-4: #989320;
-  --tetromino-o-5: #7E7719;
+  --tetromino-o-1: #F2E530; /* 最も明るい (More Contribution) */
+  --tetromino-o-2: #D5CA2B; /* 少し明るい */
+  --tetromino-o-3: #B8AE24; /* 中間 */
+  --tetromino-o-4: #9B9320; /* 少し暗い */
+  --tetromino-o-5: #7E7719; /* 最も暗い (Less Contribution) */
   
   /* Tミノ (オレンジ系) */
-  --tetromino-t-1: #F28707;
-  --tetromino-t-2: #D57706;
-  --tetromino-t-3: #B86706;
-  --tetromino-t-4: #985706;
-  --tetromino-t-5: #7E4606;
+  --tetromino-t-1: #F28707; /* 最も明るい (More Contribution) */
+  --tetromino-t-2: #D57706; /* 少し明るい */
+  --tetromino-t-3: #B86706; /* 中間 */
+  --tetromino-t-4: #9B5706; /* 少し暗い */
+  --tetromino-t-5: #7E4606; /* 最も暗い (Less Contribution) */
   
   /* Sミノ (緑系) */
-  --tetromino-s-1: #6EF230;
-  --tetromino-s-2: #61D52B;
-  --tetromino-s-3: #53B824;
-  --tetromino-s-4: #469B20;
-  --tetromino-s-5: #397E19;
+  --tetromino-s-1: #6EF230; /* 最も明るい (More Contribution) */
+  --tetromino-s-2: #61D52B; /* 少し明るい */
+  --tetromino-s-3: #53B824; /* 中間 */
+  --tetromino-s-4: #469B20; /* 少し暗い */
+  --tetromino-s-5: #397E19; /* 最も暗い (Less Contribution) */
   
   /* Zミノ (赤系) */
-  --tetromino-z-1: #F23064;
-  --tetromino-z-2: #D52858;
-  --tetromino-z-3: #B8244C;
-  --tetromino-z-4: #9B2040;
-  --tetromino-z-5: #7E1934;
+  --tetromino-z-1: #F23064; /* 最も明るい (More Contribution) */
+  --tetromino-z-2: #D52B58; /* 少し明るい */
+  --tetromino-z-3: #B8244C; /* 中間 */
+  --tetromino-z-4: #9B2040; /* 少し暗い */
+  --tetromino-z-5: #7E1934; /* 最も暗い (Less Contribution) */
   
   /* Jミノ (青系) */
-  --tetromino-j-1: #0066FF;
-  --tetromino-j-2: #005AE2;
-  --tetromino-j-3: #0050C5;
-  --tetromino-j-4: #0043A8;
-  --tetromino-j-5: #00378A;
+  --tetromino-j-1: #0066FF; /* 最も明るい (More Contribution) */
+  --tetromino-j-2: #005AE2; /* 少し明るい */
+  --tetromino-j-3: #0050C5; /* 中間 */
+  --tetromino-j-4: #0043A8; /* 少し暗い */
+  --tetromino-j-5: #00378A; /* 最も暗い (Less Contribution) */
   
   /* Lミノ (紫系) */
-  --tetromino-l-1: #B963F2;
-  --tetromino-l-2: #A357D5;
-  --tetromino-l-3: #8D4BB8;
-  --tetromino-l-4: #763F9B;
-  --tetromino-l-5: #60347E;
+  --tetromino-l-1: #B963F2; /* 最も明るい (More Contribution) */
+  --tetromino-l-2: #A357D5; /* 少し明るい */
+  --tetromino-l-3: #8D4BB8; /* 中間 */
+  --tetromino-l-4: #763F9B; /* 少し暗い */
+  --tetromino-l-5: #60347E; /* 最も暗い (Less Contribution) */
   
   /* GitHub草の基本色（GitHubのコントリビューションレベル表示用） */
   --github-grass-0: #151B23; /* レベル0 - 貢献なし */

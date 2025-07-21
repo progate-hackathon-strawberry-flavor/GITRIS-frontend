@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useAuth } from '@/hooks/useAuth';
 import { GameSession } from '../page';
+import { useAuth } from '@/hooks/useAuth';
 import { useUserDisplayName } from '@/hooks/useAuth';
 import { createClient } from '@/lib/supabase/client';
 
@@ -13,8 +13,9 @@ interface WaitingRoomProps {
   onGameStart: () => void;
   onReturnToEntry: () => void;
   setGameSession: (session: GameSession) => void;
-  setSocket: (socket: WebSocket) => void;
+  setSocket: (socket: WebSocket | null) => void;
   setConnectionStatus: (status: 'disconnected' | 'connecting' | 'connected') => void;
+  setCurrentUserId: (userId: string | null) => void;
 }
 
 export default function WaitingRoom({
@@ -25,7 +26,8 @@ export default function WaitingRoom({
   onReturnToEntry,
   setGameSession,
   setSocket,
-  setConnectionStatus
+  setConnectionStatus,
+  setCurrentUserId
 }: WaitingRoomProps) {
   const { user } = useAuth();
   const [authToken, setAuthToken] = useState<string | null>(null);
@@ -135,26 +137,27 @@ export default function WaitingRoom({
           const supabase = createClient();
           const { data: { session } } = await supabase.auth.getSession();
           if (session?.access_token) {
-            setAuthToken(session.access_token);
-            console.log('🔐 Authenticated session found, using JWT token');
+      setAuthToken(session.access_token);
+      setCurrentUserId(user.id); // 認証済みユーザーIDを設定
+      
           } else {
             setAuthToken('BYPASS_AUTH');
-            console.log('🔓 No access token found, using BYPASS_AUTH mode');
+    
           }
         } catch (error) {
           setAuthToken('BYPASS_AUTH');
-          console.log('🔓 Error getting session, using BYPASS_AUTH mode');
+  
         }
-      } else {
-        // 認証がない場合は認証バイパスモードで動作
-        setAuthToken('BYPASS_AUTH');
-        console.log('🔓 No authentication session found, using BYPASS_AUTH mode');
-      }
-      setIsInitialized(true); // 認証状態確定
+    } else {
+      // 認証がない場合は認証バイパスモードで動作
+      setAuthToken('BYPASS_AUTH');
+      
+    }
+    setIsInitialized(true); // 認証状態確定
     };
     
     getToken();
-  }, [user]);
+  }, [user, setCurrentUserId]);
 
   const joinByPasscode = async () => {
     if (hasJoined || joinInProgress.current) {
@@ -165,8 +168,8 @@ export default function WaitingRoom({
       joinInProgress.current = true; // ref による排他制御
       setHasJoined(true); // 実行フラグを設定
       
-      // TODO: 実際のDeckID取得処理を実装
-      const deckId = 'default_deck_id';
+      // ゲストユーザーの場合は"guest"を送信してバックエンドでゲストデッキを生成
+      const deckId = 'guest';
 
       // 環境変数からバックエンドURLを取得
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
@@ -194,6 +197,7 @@ export default function WaitingRoom({
         // レスポンスからUserIDを取得（認証バイパス時）
         if (data.user_id) {
           setTestUserId(data.user_id);
+          setCurrentUserId(data.user_id); // 認証バイパス時のユーザーIDを設定
         }
         
         // 入室成功後、ゲームセッション情報のポーリングを開始
@@ -219,7 +223,7 @@ export default function WaitingRoom({
     
     // 手動接続時はUserID チェックを緩和（認証トークンまたはテストユーザーIDがあれば OK）
     if (!testUserId && !authToken) {
-      console.log('⚠️ No testUserId and no auth token, skipping WebSocket connection');
+
       setConnectionStatus('disconnected');
       setWsConnecting(false);
       return;
