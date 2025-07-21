@@ -34,9 +34,22 @@ export default function TetrisGameRoom({
   // 認証情報を取得
   const { user } = useAuth();
 
-  // プレイヤーの役割を判定
+  // プレイヤーの役割を判定（デバッグ情報付き）
   const isPlayer1 = currentUserId === gameSession?.player1?.user_id;
   const isPlayer2 = currentUserId === gameSession?.player2?.user_id;
+
+  // デバッグ: 判定結果をログ出力
+  useEffect(() => {
+    if (gameSession && currentUserId) {
+      console.log('[TetrisGameRoom] プレイヤー判定:', {
+        currentUserId,
+        player1_id: gameSession?.player1?.user_id,
+        player2_id: gameSession?.player2?.user_id,
+        isPlayer1,
+        isPlayer2
+      });
+    }
+  }, [currentUserId, gameSession?.player1?.user_id, gameSession?.player2?.user_id, isPlayer1, isPlayer2]);
 
   // 自分と相手のデータを判定
   const myPlayerState = isPlayer1 ? gameSession?.player1 : isPlayer2 ? gameSession?.player2 : null;
@@ -428,6 +441,15 @@ export default function TetrisGameRoom({
     return (
       <div className="game-loading mobile-game-loading">
         <h2>ゲームデータを読み込み中...</h2>
+      </div>
+    );
+  }
+
+  if (!currentUserId) {
+    return (
+      <div className="game-loading mobile-game-loading">
+        <h2>ユーザー情報を読み込み中...</h2>
+        <p>currentUserId: {String(currentUserId)}</p>
       </div>
     );
   }

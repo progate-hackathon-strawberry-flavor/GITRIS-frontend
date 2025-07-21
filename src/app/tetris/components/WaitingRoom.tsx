@@ -151,7 +151,8 @@ export default function WaitingRoom({
     } else {
       // 認証がない場合は認証バイパスモードで動作
       setAuthToken('BYPASS_AUTH');
-      
+      // ゲストモードでは一時的にtestUserIdを設定
+      setCurrentUserId(testUserId);
     }
     setIsInitialized(true); // 認証状態確定
     };
@@ -198,6 +199,9 @@ export default function WaitingRoom({
         if (data.user_id) {
           setTestUserId(data.user_id);
           setCurrentUserId(data.user_id); // 認証バイパス時のユーザーIDを設定
+        } else {
+          // data.user_idがない場合、testUserIdをフォールバックとして使用
+          setCurrentUserId(testUserId);
         }
         
         // 入室成功後、ゲームセッション情報のポーリングを開始
