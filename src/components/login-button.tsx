@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/client'; 
 import { type Session } from '@supabase/supabase-js'
+import { useRouter } from 'next/navigation'
 
 // page.tsx などから渡される session プロパティの型を定義
 interface AuthButtonProps {
@@ -11,6 +12,8 @@ interface AuthButtonProps {
 export default function LoginButton({ session }: AuthButtonProps) {
   // ブラウザで動作するSupabaseクライアントを作成
   const supabase = createClient()
+
+  const router = useRouter()
 
   // GitHubでサインインする処理
   const handleGitHubLogin = async () => {
@@ -22,9 +25,19 @@ export default function LoginButton({ session }: AuthButtonProps) {
       },
     })
   }
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    router.refresh()
+  }
+
   return (
     <div>
-      <button onClick={handleGitHubLogin}>GitHubでログイン</button>
+      {session ? (
+        <button onClick={handleLogout}>ログアウト</button>
+      ) : (
+        <button onClick={handleGitHubLogin}>GitHubでログイン</button>
+      )}
     </div>
     );
   }
