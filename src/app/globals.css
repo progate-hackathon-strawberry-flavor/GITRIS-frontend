@@ -74,9 +74,56 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: 'DotGothic16', monospace, sans-serif;
+  
+  /* モバイル自動ズーム防止 */
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  
+  /* タッチ操作の制御 */
+  touch-action: manipulation;
+  
+  /* オーバースクロール防止 */
+  overscroll-behavior: none;
+  
+  /* モバイルブラウザの余白をリセット */
+  margin: 0;
+  padding: 0;
+  
+  /* 高さをビューポートに固定 */
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+}
+
+/* HTML要素の基本設定 */
+html {
+  /* モバイル自動ズーム防止 */
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  
+  /* 高さをビューポートに固定 */
+  height: 100%;
+  height: -webkit-fill-available;
+  
+  /* オーバースクロール防止 */
+  overscroll-behavior: none;
+  
+  /* タッチ操作の制御 */
+  touch-action: manipulation;
 }
 
 /* 全体的にDotGothic16フォントを適用 */
 * {
   font-family: inherit;
+  
+  /* すべての要素でズーム防止 */
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* 入力要素での自動ズーム防止 */
+input, textarea, select {
+  font-size: 16px !important; /* iOSでの自動ズーム防止 */
 }
