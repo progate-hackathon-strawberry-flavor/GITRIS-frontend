@@ -7,6 +7,13 @@
   color: var(--foreground);
   min-height: 100vh;
   padding: 20px;
+  
+  /* モバイル自動ズーム防止 */
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  touch-action: manipulation;
+  overscroll-behavior: none;
 }
 
 .tetris-container {
@@ -1079,6 +1086,19 @@
   overflow: hidden; /* オーバーフローを隠す */
   padding: 5px;
   box-sizing: border-box;
+  
+  /* モバイル自動ズーム防止 */
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  touch-action: manipulation;
+  overscroll-behavior: none;
+  
+  /* 位置固定でレイアウトの動的変更を防止 */
+  position: relative;
+  width: 90vw;
+  left: 0;
+  top: 0;
 }
 
 /* モバイル版テトリス風レイアウト */
@@ -1357,6 +1377,16 @@
     background: #000 !important;
     border-radius: 3px !important;
     overflow: hidden !important;
+    
+    /* レイアウト安定化 */
+    position: relative !important;
+    will-change: auto !important;
+    transform: translateZ(0) !important; /* ハードウェアアクセラレーション */
+    backface-visibility: hidden !important;
+    
+    /* サイズ固定化 */
+    flex-shrink: 0 !important;
+    flex-grow: 0 !important;
   }
 
   /* モバイルセル */
