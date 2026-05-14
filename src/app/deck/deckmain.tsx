@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/useAuth';
+import { apiRequest } from '@/lib/api';
 import SaveDeckButton from './save-deck';
 
 // --- 型定義 ---
@@ -148,6 +149,7 @@ const checkCollision = (cellsToCheck, currentTetromino, placedTetrominos) => {
 
 // --- React コンポーネント ---
 export default function DeckMain() {
+  const { user, isLoading: authLoading } = useAuth();
   const [contributionGrid, setContributionGrid] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -187,10 +189,9 @@ export default function DeckMain() {
   const fetchContributions = useCallback(async () => {
     setLoading(true); setError(null);
     try {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
+      if (authLoading) return;
       if (!user) throw new Error('ユーザーが認証されていません');
-      const response = await fetch(`http://localhost:8080/api/contributions/${user.id}`);
+      const response = await apiRequest(`/api/contributions/${user.userId}`);
 
       if (!response.ok) throw new Error(`APIエラー`);
 
@@ -198,9 +199,13 @@ export default function DeckMain() {
       setContributionGrid(transformContributionsToGrid(data));
 
     } catch (err: any) { setError(err.message); } finally { setLoading(false); }
-  }, []);
+  }, [authLoading, user]);
 
-  useEffect(() => { fetchContributions(); }, [fetchContributions]);
+  useEffect(() => {
+    if (!authLoading) {
+      fetchContributions();
+    }
+  }, [authLoading, fetchContributions]);
   
    // 絶対座標とスコア、色インデックスを計算するヘルパー
   const calculateTetrominoDetails = useCallback((type, currentX, currentY, currentRotation) => {

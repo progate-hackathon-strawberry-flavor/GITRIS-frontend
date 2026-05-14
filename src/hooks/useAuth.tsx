@@ -1,39 +1,58 @@
 'use client'
 
-import { createClient } from '@/lib/supabase/client'
-import type { Session, User } from '@supabase/supabase-js'
 import { useRouter } from 'next/navigation'
 import { createContext, useContext, useEffect, useState } from 'react'
 
 type AuthContextType = {
-  session: Session | null
-  user: User | null
+  token: string | null
+  user: { userId: string; login: string } | null
+  isLoading: boolean
   signOut: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const supabase = createClient()
   const router = useRouter()
-  const [session, setSession] = useState<Session | null>(null)
-  const [user, setUser] = useState<User | null>(null)
+  const [token, setToken] = useState<string | null>(null)
+  const [user, setUser] = useState<{ userId: string; login: string } | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
-  const signOut = async () => {
-    await supabase.auth.signOut()
-    router.refresh()
+  const readCookie = (name: string) => {
+    if (typeof document === 'undefined') return null
+    const cookie = document.cookie
+      .split('; ')
+      .find((item) => item.startsWith(`${name}=`))
+    return cookie ? decodeURIComponent(cookie.split('=')[1] ?? '') : null
   }
 
+  const clearCookie = (name: string) => {
+    document.cookie = `${name}=; Max-Age=0; path=/; SameSite=Lax`
+  }
+
+  // ページ読み込み時にトークンをcookieから復元
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
-      setUser(session?.user ?? null)
-    })
-    return () => subscription.unsubscribe()
-  }, [router, supabase.auth])
+    const storedToken = readCookie('authToken')
+    const storedUser = readCookie('authUser')
+    
+    if (storedToken && storedUser) {
+      setToken(storedToken)
+      setUser(JSON.parse(storedUser))
+    }
+    
+    setIsLoading(false)
+  }, [])
+
+  const signOut = async () => {
+    clearCookie('authToken')
+    clearCookie('authUser')
+    setToken(null)
+    setUser(null)
+    router.push('/')
+  }
 
   return (
-    <AuthContext.Provider value={{ session, user, signOut }}>
+    <AuthContext.Provider value={{ token, user, isLoading, signOut }}>
       {children}
     </AuthContext.Provider>
   )

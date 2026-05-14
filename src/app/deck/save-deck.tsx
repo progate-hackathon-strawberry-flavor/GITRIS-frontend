@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { apiRequest } from '@/lib/api';
 
 // 親コンポーネントから渡されるデータの型定義
 type TetrominoPlacementPayload = {
@@ -21,6 +22,7 @@ type SaveDeckButtonProps = {
 const TOTAL_TETROMINO_TYPES = 7;
 
 export default function SaveDeckButton({ tetrominosToSave, onSaveSuccess }: SaveDeckButtonProps) {
+    const { user } = useAuth();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -32,22 +34,17 @@ export default function SaveDeckButton({ tetrominosToSave, onSaveSuccess }: Save
         setError(null);
         
         try {
-            const supabase = createClient();
-            const { data: { session } } = await supabase.auth.getSession();
-            if (!session) throw new Error('認証セッションがありません。');
+            if (!user) {
+                throw new Error('認証されていません。ログインしてください。');
+            }
             
             const requestBody = {
-              userId: session.user.id,
+              userId: user.userId,
               tetriminos: tetrominosToSave,
             };
             
-            const apiUrl = 'http://localhost:8080/api/protected/deck/save';
-            const response = await fetch(apiUrl, {
+            const response = await apiRequest('/api/protected/deck/save', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${session.access_token}`,
-                },
                 body: JSON.stringify(requestBody)
             });
 
