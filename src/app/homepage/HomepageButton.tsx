@@ -7,8 +7,8 @@ export default function HomepageButton() {
   const router = useRouter();
 
   return (
-    <div className="flex gap-4">
-      <button type="button" onClick={() => router.push('/game')}>
+    <div className="flex gap-4" style={{ justifyContent: 'center', marginTop: '20px' }}>
+      <button type="button" onClick={() => router.push('/tetris')}>
         ゲームを始める
       </button>
       <button type="button" onClick={() => router.push('/deck')}>

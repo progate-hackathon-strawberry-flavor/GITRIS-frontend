@@ -1,17 +1,11 @@
-import { createClient } from '@/lib/supabase/server';
 import LoginButton from '../components/login-button';
+import Image from 'next/image';
 import './globals.css';
 import HelpModalTrigger from './components/HelpModal/helpModal.module';
 import RankingModalTrigger from './components/rankingModal/RankingModalTrigger';
 import styles from './page.module.css';
-export default async function Login() {
-  // サーバーサイドでSupabaseクライアントを作成
-  const supabase = await createClient();
+export default function Login() {
 
-  // ユーザーのセッション情報（ログイン状態）を取得
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
 
   return (
     // CSS Modulesのクラスを適用
@@ -28,23 +22,15 @@ export default async function Login() {
         </div>
       </div>
       <div className={styles.supabaseAuthSection}>
-        <LoginButton session={user} />
-        {user && (
-          <div className={styles.userInfoContainer}>
-            <p
-              style={{
-                fontWeight: 'semibold',
-                color: styles.userInfoContainer.pColor,
-              }}
-            >
-              ログイン中のユーザー:
-            </p>{' '}
-            {/* pColorは存在しないので注意 */}
-            <pre className={styles.userInfoPre}>
-              {JSON.stringify(user, null, 2)}
-            </pre>
-          </div>
-        )}
+        <Image
+          className="dark:invert"
+          src="/ロゴ.png"
+          alt="gitris-logo"
+          width={504}
+          height={221}
+          priority
+        />
+        <LoginButton />
       </div>
     </div>
   );
