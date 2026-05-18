@@ -22,9 +22,9 @@ type SaveDeckButtonProps = {
 const TOTAL_TETROMINO_TYPES = 7;
 
 export default function SaveDeckButton({ tetrominosToSave, onSaveSuccess }: SaveDeckButtonProps) {
-    const { user } = useAuth();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const { user, isLoading: authLoading } = useAuth();
 
     // 全てのミノ(7個)が配置されたら保存可能にする
     const isSaveable = tetrominosToSave.length === TOTAL_TETROMINO_TYPES;
@@ -39,8 +39,7 @@ export default function SaveDeckButton({ tetrominosToSave, onSaveSuccess }: Save
             }
             
             const requestBody = {
-              userId: user.userId,
-              tetriminos: tetrominosToSave,
+                tetriminos: tetrominosToSave,
             };
             
             const response = await apiRequest('/api/protected/deck/save', {
@@ -63,15 +62,16 @@ export default function SaveDeckButton({ tetrominosToSave, onSaveSuccess }: Save
     };
 
     const buttonText = isSaveable ? 'デッキを保存する' : `全てのミノ(${TOTAL_TETROMINO_TYPES}個)を配置してください`;
+    const displayText = authLoading ? '認証確認中...' : buttonText;
 
     return (
         <div>
             <button 
               onClick={saveDeck} 
-              disabled={loading || !isSaveable}
+                            disabled={loading || authLoading || !isSaveable || !user}
               className="bg-green-600 text-white font-bold py-2 px-6 rounded-lg transition-colors hover:bg-green-700 disabled:bg-gray-500 disabled:cursor-not-allowed"
             >
-                {loading ? '保存中...' : buttonText}
+                                {loading ? '保存中...' : displayText}
             </button>
             {error && <p className="text-red-500 mt-2">エラー: {error}</p>}
         </div>

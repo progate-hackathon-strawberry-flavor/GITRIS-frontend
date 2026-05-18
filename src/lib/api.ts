@@ -54,9 +54,10 @@ export async function apiRequest(
     headers.set('Content-Type', 'application/json')
   }
 
-  // リクエストを送信
+  // リクエストを送信（credentials を常に include して Cookie を送信）
   return fetch(url.toString(), {
     ...options,
+    credentials: 'include',
     headers,
   })
 }

@@ -33,7 +33,7 @@ export default function ContributionsButton() {
         throw new Error('ユーザーがログインしていません');
       }
       const userId = user.userId;
-      const response = await apiRequest(`/api/contributions/${userId}`);
+      const response = await apiRequest(`/api/protected/contributions/${userId}`);
 
       if (!response.ok) {
         throw new Error(`APIエラー: ${response.status}`);

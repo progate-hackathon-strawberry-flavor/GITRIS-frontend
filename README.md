@@ -1,4 +1,8 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GITRIS
+github * tetris
+
+## 使用技術
+<img src="https://go-skill-icons.vercel.app/api/icons?i=ts,react,next,supabase,vercel,github" alt="Icons representing technologies: TypeScript, Hono, React, Dart, Flutter, Discord, GitHub, Supabase, and Vercel" />
 
 ## Getting Started
 

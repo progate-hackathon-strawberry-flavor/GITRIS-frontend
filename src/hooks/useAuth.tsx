@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { createContext, useContext, useEffect, useState } from 'react'
+import { apiRequest } from '@/lib/api'
 
 type AuthContextType = {
   token: string | null
@@ -64,4 +65,40 @@ export const useAuth = () => {
     throw new Error('useAuth must be used within an AuthProvider')
   }
   return context
+}
+
+// ユーザー名（表示名）を取得するカスタムフック
+export function useUserDisplayName(userID: string | null) {
+  const [displayName, setDisplayName] = useState<string>('ゲスト')
+  const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    if (!userID) {
+      setDisplayName('ゲスト')
+      return
+    }
+
+    const fetchDisplayName = async () => {
+      setLoading(true)
+      try {
+        const response = await apiRequest(`/api/user/${userID}/display-name`)
+        
+        if (response.ok) {
+          const data = await response.json()
+          setDisplayName(data.displayName || 'ゲスト')
+        } else {
+          setDisplayName('ゲスト')
+        }
+      } catch (error) {
+        console.error('ユーザー名の取得に失敗しました:', error)
+        setDisplayName('ゲスト')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchDisplayName()
+  }, [userID])
+
+  return { displayName, loading }
 }

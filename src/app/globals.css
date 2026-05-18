@@ -1,14 +1,129 @@
 /* 1. Tailwind CSSの基本スタイルをインポート */
 @import "tailwindcss";
 
-/* 2. デフォルト（ライトモード）の変数を定義 */
+/* 2. GITRIS基本配色変数を定義 */
 :root {
-  --background: #151b23; /* 背景色 (白) */
-  --foreground: #f0f5fa; /* 文字色 (黒に近いグレー) */
+  /* 背景・テキスト基本色 */
+  --background: #151B23; /* 背景/テキストの濃い色 */
+  --foreground: #F0F5FA; /* 背景/テキストの明るい色 */
+  
+  /* メイン配色 */
+  --gitris-bright-green: #56D364; /* メインの明るい緑 - 選択肢の部分、数字や文字の部分 */
+  --gitris-dark-green: #2DA042;   /* メインの暗い緑 - ボタン */
+  
+  /* テトリミノカラー（5段階グラデーション） */
+  /* Iミノ (シアン系) */
+  --tetromino-i-1: #5BE3B6; /* 最も明るい (More Contribution) */
+  --tetromino-i-2: #50C69E; /* 少し明るい */
+  --tetromino-i-3: #43A987; /* 中間 */
+  --tetromino-i-4: #388C70; /* 少し暗い */
+  --tetromino-i-5: #2C6E58; /* 最も暗い (Less Contribution) */
+  
+  /* Oミノ (黄色系) */
+  --tetromino-o-1: #F2E530; /* 最も明るい (More Contribution) */
+  --tetromino-o-2: #D5CA2B; /* 少し明るい */
+  --tetromino-o-3: #B8AE24; /* 中間 */
+  --tetromino-o-4: #9B9320; /* 少し暗い */
+  --tetromino-o-5: #7E7719; /* 最も暗い (Less Contribution) */
+  
+  /* Tミノ (オレンジ系) */
+  --tetromino-t-1: #F28707; /* 最も明るい (More Contribution) */
+  --tetromino-t-2: #D57706; /* 少し明るい */
+  --tetromino-t-3: #B86706; /* 中間 */
+  --tetromino-t-4: #9B5706; /* 少し暗い */
+  --tetromino-t-5: #7E4606; /* 最も暗い (Less Contribution) */
+  
+  /* Sミノ (緑系) */
+  --tetromino-s-1: #6EF230; /* 最も明るい (More Contribution) */
+  --tetromino-s-2: #61D52B; /* 少し明るい */
+  --tetromino-s-3: #53B824; /* 中間 */
+  --tetromino-s-4: #469B20; /* 少し暗い */
+  --tetromino-s-5: #397E19; /* 最も暗い (Less Contribution) */
+  
+  /* Zミノ (赤系) */
+  --tetromino-z-1: #F23064; /* 最も明るい (More Contribution) */
+  --tetromino-z-2: #D52B58; /* 少し明るい */
+  --tetromino-z-3: #B8244C; /* 中間 */
+  --tetromino-z-4: #9B2040; /* 少し暗い */
+  --tetromino-z-5: #7E1934; /* 最も暗い (Less Contribution) */
+  
+  /* Jミノ (青系) */
+  --tetromino-j-1: #0066FF; /* 最も明るい (More Contribution) */
+  --tetromino-j-2: #005AE2; /* 少し明るい */
+  --tetromino-j-3: #0050C5; /* 中間 */
+  --tetromino-j-4: #0043A8; /* 少し暗い */
+  --tetromino-j-5: #00378A; /* 最も暗い (Less Contribution) */
+  
+  /* Lミノ (紫系) */
+  --tetromino-l-1: #B963F2; /* 最も明るい (More Contribution) */
+  --tetromino-l-2: #A357D5; /* 少し明るい */
+  --tetromino-l-3: #8D4BB8; /* 中間 */
+  --tetromino-l-4: #763F9B; /* 少し暗い */
+  --tetromino-l-5: #60347E; /* 最も暗い (Less Contribution) */
+  
+  /* GitHub草の基本色（GitHubのコントリビューションレベル表示用） */
+  --github-grass-0: #151B23; /* レベル0 - 貢献なし */
+  --github-grass-1: #023A16; /* レベル1 */
+  --github-grass-2: #196C2E; /* レベル2 */
+  --github-grass-3: #2DA042; /* レベル3 */
+  --github-grass-4: #56D364; /* レベル4 - 最大貢献 */
 }
 
 /* 3. 変数を実際に適用 */
 body {
   background: var(--background);
   color: var(--foreground);
+  font-family: 'DotGothic16', monospace, sans-serif;
+  
+  /* モバイル自動ズーム防止 */
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  
+  /* タッチ操作の制御 */
+  touch-action: manipulation;
+  
+  /* オーバースクロール防止 */
+  overscroll-behavior: none;
+  
+  /* モバイルブラウザの余白をリセット */
+  margin: 0;
+  padding: 0;
+  
+  /* 高さをビューポートに固定 */
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+}
+
+/* HTML要素の基本設定 */
+html {
+  /* モバイル自動ズーム防止 */
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  
+  /* 高さをビューポートに固定 */
+  height: 100%;
+  height: -webkit-fill-available;
+  
+  /* オーバースクロール防止 */
+  overscroll-behavior: none;
+  
+  /* タッチ操作の制御 */
+  touch-action: manipulation;
+}
+
+/* 全体的にDotGothic16フォントを適用 */
+* {
+  font-family: inherit;
+  
+  /* すべての要素でズーム防止 */
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* 入力要素での自動ズーム防止 */
+input, textarea, select {
+  font-size: 16px !important; /* iOSでの自動ズーム防止 */
 }

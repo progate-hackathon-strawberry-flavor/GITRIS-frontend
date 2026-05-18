@@ -19,7 +19,7 @@ export default function GetContributionsButton() {
             }
             
             const userId = user.userId;
-            const response = await apiRequest(`/api/contributions/refresh/${userId}`, {
+            const response = await apiRequest(`/api/protected/contributions/refresh/${userId}`, {
                 method: 'POST',
             });
 
@@ -38,7 +38,7 @@ export default function GetContributionsButton() {
     return (
         <div>
             <button onClick={fetchContributions} disabled={loading}>
-                {loading ? 'データ取得中...' : '貢献データを取得'}
+                {loading ? 'Loading' : 'CONNECT'}
             </button>
             {error && <p style={{ color: 'red' }}>エラー: {error}</p>}
             {loading && <p>Loading...</p>}
