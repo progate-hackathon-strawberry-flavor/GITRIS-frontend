@@ -1,0 +1,9 @@
+node_modules
+.next
+.env*
+.git
+.gitignore
+Dockerfile
+frontend.yaml
+README.md
+.DS_Store
