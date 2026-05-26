@@ -11,7 +11,7 @@ export default function AuthButton() {
     try {
       const clientId = process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID
       // const redirectUri = `${window.location.origin}/auth/callback`
-      const redirectUri = `http://localhost:3000/auth/callback`
+      const redirectUri = process.env.NEXT_PUBLIC_APP_URL ? `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback` : `http://localhost:3000/auth/callback`
       
       if (!clientId) {
         throw new Error('GitHub Client ID not configured')

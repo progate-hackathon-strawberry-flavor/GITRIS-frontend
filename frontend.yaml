@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gitris-frontend-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: gitris-frontend
+  template:
+    metadata:
+      labels:
+        app: gitris-frontend
+    spec:
+      containers:
+      - name: gitris-frontend-container
+        image: gitris-frontend:latest # Next.jsのイメージ
+        imagePullPolicy: Never # ローカルイメージを使用
+        ports:
+        - containerPort: 3000
+        env:
+        - name: HOSTNAME
+          value: "0.0.0.0"
+        - name: NEXT_PUBLIC_APP_URL
+          value: http://localhost:3000
+        - name: NEXT_PUBLIC_BACKEND_URL
+          value: http://localhost:8080
+        - name: BACKEND_URL
+          value: http://gitris-backend-service:8080
+        - name: NEXT_PUBLIC_GITHUB_CLIENT_ID
+          value: Ov23likztPnQzSLMIDdv
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gitris-frontend-service
+spec:
+  type: LoadBalancer # アクセスできるようにする
+  selector:
+    app: gitris-frontend
+  ports:
+    - protocol: TCP
+      port: 3000      # ブラウザで叩くポート
+      targetPort: 3000

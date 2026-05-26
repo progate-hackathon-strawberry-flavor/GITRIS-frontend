@@ -153,7 +153,7 @@ export default function WaitingRoom({
     }
     
     // 環境変数からWebSocketURLを構築
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+    const apiUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080';
     const wsUrl = apiUrl.replace('http://', 'ws://').replace('https://', 'wss://') + `/api/game/ws/${passcode}`;
     
     setConnectionStatus('connecting');

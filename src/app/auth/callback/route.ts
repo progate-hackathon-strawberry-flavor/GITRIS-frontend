@@ -1,16 +1,17 @@
 import { NextResponse } from 'next/server'
 
 export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url)
+  const { searchParams } = new URL(request.url)
   const code = searchParams.get('code')
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
   if (!code) {
-    return NextResponse.redirect(`${origin}/`)
+    return NextResponse.redirect(`${appUrl}/`)
   }
 
   try {
-    // バックエンドの OAuth callback エンドポイントを呼び出す
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
+    // サーバーサイドからはクラスター内部URLを使用する
+    const backendUrl = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
     const response = await fetch(`${backendUrl}/api/auth/callback`, {
       method: 'POST',
       headers: {
@@ -21,18 +22,18 @@ export async function GET(request: Request) {
 
     if (!response.ok) {
       console.error('Backend auth error:', response.statusText)
-      return NextResponse.redirect(`${origin}/`)
+      return NextResponse.redirect(`${appUrl}/`)
     }
 
     const data = await response.json()
 
     if (!data.success || !data.token) {
       console.error('Auth failed:', data.error)
-      return NextResponse.redirect(`${origin}/`)
+      return NextResponse.redirect(`${appUrl}/`)
     }
 
     // トークンとユーザー情報を保存して homepage にリダイレクト
-    const redirectUrl = new URL(`${origin}/homepage`)
+    const redirectUrl = new URL(`${appUrl}/homepage`)
     
     // クッキーにトークンとユーザー情報を設定
     const response2 = NextResponse.redirect(redirectUrl)
@@ -57,6 +58,6 @@ export async function GET(request: Request) {
     return response2
   } catch (error) {
     console.error('Auth callback error:', error)
-    return NextResponse.redirect(`${origin}/`)
+    return NextResponse.redirect(`${appUrl}/`)
   }
 }
