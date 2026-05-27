@@ -39,7 +39,7 @@ export async function GET(request: Request) {
     const response2 = NextResponse.redirect(redirectUrl)
     response2.cookies.set('authToken', data.token, {
       httpOnly: false,
-      secure: process.env.NODE_ENV === 'production',
+      secure: false,
       sameSite: 'lax',
       maxAge: 24 * 60 * 60, // 24 hours
       path: '/',
@@ -49,7 +49,7 @@ export async function GET(request: Request) {
       login: data.login,
     }), {
       httpOnly: false,
-      secure: process.env.NODE_ENV === 'production',
+      secure: false,
       sameSite: 'lax',
       maxAge: 24 * 60 * 60,
       path: '/',
