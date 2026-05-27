@@ -14,17 +14,14 @@ spec:
     spec:
       containers:
       - name: gitris-frontend-container
-        image: gitris-frontend:latest # Next.jsのイメージ
-        imagePullPolicy: Never # ローカルイメージを使用
+        # ECRのURIに置換
+        image: 678780125373.dkr.ecr.ap-northeast-1.amazonaws.com/gitris-frontend:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 3000
         env:
         - name: HOSTNAME
           value: "0.0.0.0"
-        - name: NEXT_PUBLIC_APP_URL
-          value: http://localhost:3000
-        - name: NEXT_PUBLIC_BACKEND_URL
-          value: http://localhost:8080
         - name: BACKEND_URL
           value: http://gitris-backend-service:8080
         - name: NEXT_PUBLIC_GITHUB_CLIENT_ID
@@ -35,10 +32,10 @@ kind: Service
 metadata:
   name: gitris-frontend-service
 spec:
-  type: LoadBalancer # アクセスできるようにする
+  type: LoadBalancer
   selector:
     app: gitris-frontend
   ports:
     - protocol: TCP
-      port: 3000      # ブラウザで叩くポート
+      port: 80
       targetPort: 3000
