@@ -2,6 +2,10 @@ FROM node:24-alpine
 
 WORKDIR /app
 
+COPY package*.json ./
+
+RUN npm ci
+
 COPY . .
 
 ARG NEXT_PUBLIC_APP_URL
@@ -12,7 +16,6 @@ ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
 ENV NEXT_PUBLIC_BACKEND_URL=$NEXT_PUBLIC_BACKEND_URL
 ENV NEXT_PUBLIC_GITHUB_CLIENT_ID=$NEXT_PUBLIC_GITHUB_CLIENT_ID
 
-RUN npm install
 RUN npm run build
 
 RUN cp -r public .next/standalone/public
