@@ -6,7 +6,6 @@ import TetrisBoard from './TetrisBoard';
 import TetrisMiniBoard from './TetrisMiniBoard';
 import GameControls from './GameControls';
 import { useUserDisplayName, useAuth } from '@/hooks/useAuth';
-import { createClient } from '@/lib/supabase/client';
 
 interface TetrisGameRoomProps {
   gameSession: GameSession | null;

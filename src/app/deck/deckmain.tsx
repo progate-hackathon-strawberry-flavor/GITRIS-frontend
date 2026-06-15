@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
-import { createClient } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
-import SaveDeckButton from "./save-deck";
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/useAuth';
+import { apiRequest } from '@/lib/api';
+import SaveDeckButton from './save-deck';
 import GetContributionsButton from "../../components/connect-github-button";
 
 // --- 型定義 ---
@@ -192,6 +193,7 @@ const checkCollision = (cellsToCheck, currentTetromino, placedTetrominos) => {
 
 // --- React コンポーネント ---
 export default function DeckMain() {
+  const { user, isLoading: authLoading } = useAuth();
   const [contributionGrid, setContributionGrid] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -238,13 +240,9 @@ export default function DeckMain() {
     setLoading(true);
     setError(null);
     try {
-      const supabase = createClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) throw new Error("ユーザーが認証されていません");
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
-      const response = await fetch(`${apiUrl}/api/contributions/${user.id}`);
+      if (authLoading) return;
+      if (!user) throw new Error('ユーザーが認証されていません');
+      const response = await apiRequest(`/api/protected/contributions/${user.userId}`);
 
       if (!response.ok) throw new Error(`APIエラー`);
 

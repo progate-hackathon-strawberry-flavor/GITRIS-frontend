@@ -1,43 +1,32 @@
 'use client';
 
-import { createClient } from '@/lib/supabase/client'; 
-import { type Session } from '@supabase/supabase-js'
-import { useRouter } from 'next/navigation'
 
-// page.tsx などから渡される session プロパティの型を定義
-interface AuthButtonProps {
-  session: Session | null
-}
-
-export default function LoginButton({ session }: AuthButtonProps) {
-  // ブラウザで動作するSupabaseクライアントを作成
-  const supabase = createClient()
-
-  const router = useRouter()
-
-  // GitHubでサインインする処理
+export default function LoginButton() {
   const handleGitHubLogin = async () => {
-    await supabase.auth.signInWithOAuth({
-      provider: 'github',
-      options: {
-        // ログイン後にリダイレクトするURL
-        redirectTo: `${location.origin}/homepage`,
-      },
-    })
-  }
+    try {
+      // GitHub OAuth フロー開始
+      const clientId = process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID;
+      const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/callback`;
+      
+      if (!clientId) {
+        throw new Error('GitHub Client ID not configured');
+      }
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
-    router.refresh()
-  }
+      const authUrl = new URL('https://github.com/login/oauth/authorize');
+      authUrl.searchParams.append('client_id', clientId);
+      authUrl.searchParams.append('redirect_uri', redirectUri);
+      authUrl.searchParams.append('scope', 'user:email');
+      authUrl.searchParams.append('state', Math.random().toString(36).substring(7));
+
+      window.location.href = authUrl.toString();
+    } catch (err) {
+      console.error('Login error:', err);
+    }
+  };
 
   return (
     <div>
-      {session ? (
-        <button onClick={handleLogout}>ログアウト</button>
-      ) : (
-        <button onClick={handleGitHubLogin}>GitHubでログイン</button>
-      )}
+      <button onClick={handleGitHubLogin}>GitHubでログイン</button>
     </div>
     );
   }

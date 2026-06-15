@@ -1,22 +1,63 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
 
 export async function GET(request: Request) {
-  // x-forwarded-host から本番のホスト名を取得
-  const forwardedHost = request.headers.get('x-forwarded-host')
-  const protocol = 'https://'
-  const url = new URL(request.url)
-  const origin = forwardedHost ? `${protocol}${forwardedHost}` : url.origin
-  const searchParams = url.searchParams
+  const { searchParams } = new URL(request.url)
   const code = searchParams.get('code')
-  const next = searchParams.get('next') ?? '/'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
-  if (code) {
-    const supabase = await createClient()
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
-    if (!error) {
-      return NextResponse.redirect(`${origin}${next}`)
-    }
+  if (!code) {
+    return NextResponse.redirect(`${appUrl}/`)
   }
-  return NextResponse.redirect(`${origin}/auth/auth-code-error`)
+
+  try {
+    // サーバーサイドからはクラスター内部URLを使用する
+    const backendUrl = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
+    const response = await fetch(`${backendUrl}/api/auth/callback`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ code }),
+    })
+
+    if (!response.ok) {
+      console.error('Backend auth error:', response.statusText)
+      return NextResponse.redirect(`${appUrl}/`)
+    }
+
+    const data = await response.json()
+
+    if (!data.success || !data.token) {
+      console.error('Auth failed:', data.error)
+      return NextResponse.redirect(`${appUrl}/`)
+    }
+
+    // トークンとユーザー情報を保存して homepage にリダイレクト
+    const redirectUrl = new URL(`${appUrl}/homepage`)
+    
+    // クッキーにトークンとユーザー情報を設定
+    const response2 = NextResponse.redirect(redirectUrl)
+    response2.cookies.set('authToken', data.token, {
+      httpOnly: false,
+      secure: false,
+      sameSite: 'lax',
+      maxAge: 24 * 60 * 60, // 24 hours
+      path: '/',
+    })
+    response2.cookies.set('authUser', JSON.stringify({
+      userId: data.user_id,
+      login: data.login,
+    }), {
+      httpOnly: false,
+      secure: false,
+      sameSite: 'lax',
+      maxAge: 24 * 60 * 60,
+      path: '/',
+    })
+
+    return response2
+  } catch (error) {
+    console.error('Auth callback error:', error)
+    return NextResponse.redirect(`${appUrl}/`)
+  }
 }
