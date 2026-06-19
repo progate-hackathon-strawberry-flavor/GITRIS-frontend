@@ -7,6 +7,8 @@ import { apiRequest } from '@/lib/api';
 
 interface WaitingRoomProps {
   passcode: string;
+  isHost?: boolean;
+  alreadyJoined?: boolean;
   gameSession: GameSession | null;
   connectionStatus: 'disconnected' | 'connecting' | 'connected';
   onGameStart: () => void;
@@ -19,6 +21,8 @@ interface WaitingRoomProps {
 
 export default function WaitingRoom({
   passcode,
+  isHost = false,
+  alreadyJoined = false,
   gameSession,
   connectionStatus,
   onGameStart,
@@ -32,13 +36,14 @@ export default function WaitingRoom({
   const [testUserId, setTestUserId] = useState<string>('test-user-001');
   const [isPolling, setIsPolling] = useState(false);
   const [pollIntervalId, setPollIntervalId] = useState<NodeJS.Timeout | null>(null);
+  const [countdown, setCountdown] = useState<number | null>(null);
 
   // ユーザー名を取得するフック
   const { token } = useAuth();
   const { displayName: player1Name } = useUserDisplayName(gameSession?.player1?.user_id || null);
   const { displayName: player2Name } = useUserDisplayName(gameSession?.player2?.user_id || null);
 
-  const [hasJoined, setHasJoined] = useState<boolean>(false); // 重複実行防止フラグ
+  const [hasJoined, setHasJoined] = useState<boolean>(alreadyJoined); // 重複実行防止フラグ
   const [isInitialized, setIsInitialized] = useState<boolean>(false); // 初期化完了フラグ
   const joinInProgress = useRef<boolean>(false); // ref による排他制御
   const [wsConnecting, setWsConnecting] = useState(false);
@@ -109,6 +114,32 @@ export default function WaitingRoom({
       stopPolling();
     };
   }, [stopPolling]);
+
+  // 2人揃ったら5秒カウントダウン開始
+  useEffect(() => {
+    const playerCount = getPlayerCount();
+    if (playerCount === 2 && gameSession?.status === 'waiting' && connectionStatus === 'disconnected' && !wsConnecting) {
+      if (countdown === null) {
+        setCountdown(5);
+      }
+    } else if (playerCount < 2) {
+      setCountdown(null);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gameSession?.player1, gameSession?.player2, gameSession?.status, connectionStatus, wsConnecting]);
+
+  // カウントダウンタイマー
+  useEffect(() => {
+    if (countdown === null) return;
+    if (countdown <= 0) {
+      setCountdown(null);
+      connectWebSocket();
+      return;
+    }
+    const timer = setTimeout(() => setCountdown(prev => prev !== null ? prev - 1 : null), 1000);
+    return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [countdown]);
 
   // 認証情報をサーバー経由で取得（httpOnly cookie を利用）
   useEffect(() => {
@@ -234,6 +265,13 @@ export default function WaitingRoom({
     }
   };
 
+  // alreadyJoined=true の場合はjoin済みなのでポーリングだけ開始
+  useEffect(() => {
+    if (!isInitialized || !alreadyJoined) return;
+    setTimeout(() => { startPolling(); }, 500);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isInitialized]);
+
   // 初期化完了且つまだ入室していない場合のみ実行
   useEffect(() => {
     if (!isInitialized || hasJoined) {
@@ -320,7 +358,14 @@ export default function WaitingRoom({
       <div className="waiting-card">
         <div className="waiting-header">
           <h2>ルーム待機中</h2>
-          <p><strong>合言葉:</strong> {passcode}</p>
+          {isHost && (
+            <div style={{ margin: '16px 0', padding: '16px', background: '#1a1a2e', borderRadius: '12px', border: '2px solid #4CAF50' }}>
+              <p style={{ margin: '0 0 8px', fontSize: '13px', color: '#aaa' }}>相手にこのコードを伝えてください</p>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span style={{ fontSize: '32px', fontWeight: 'bold', letterSpacing: '6px', color: '#4CAF50' }}>{passcode}</span>
+              </div>
+            </div>
+          )}
           <p><strong>接続状態:</strong> {getConnectionStatusDisplay()}</p>
         </div>
 
@@ -392,27 +437,6 @@ export default function WaitingRoom({
 
         {getPlayerCount() === 2 && gameSession?.status === 'waiting' && (
           <div className="connection-controls" style={{ marginTop: '20px', textAlign: 'center' }}>
-            {connectionStatus === 'disconnected' && (
-              <button 
-                onClick={() => {
-                  connectWebSocket();
-                }} 
-                style={{ 
-                  backgroundColor: '#4CAF50', 
-                  color: 'white', 
-                  padding: '15px 30px', 
-                  border: 'none', 
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  fontSize: '18px',
-                  fontWeight: 'bold',
-                  boxShadow: '0 4px 8px rgba(0,0,0,0.2)'
-                }}
-              >
-                準備完了
-              </button>
-            )}
-            
             {connectionStatus === 'connecting' && (
               <div style={{ padding: '15px 30px' }}>
                 <div style={{ color: '#ffaa00', fontSize: '18px', fontWeight: 'bold' }}>
@@ -420,13 +444,9 @@ export default function WaitingRoom({
                 </div>
               </div>
             )}
-            
             {connectionStatus === 'connected' && (
               <div style={{ padding: '15px 30px' }}>
                 <div style={{ color: '#4CAF50', fontSize: '18px', fontWeight: 'bold' }}>
-                  準備完了
-                </div>
-                <div style={{ fontSize: '14px', color: '#ccc', marginTop: '5px' }}>
                   ゲーム開始をお待ちください
                 </div>
               </div>
