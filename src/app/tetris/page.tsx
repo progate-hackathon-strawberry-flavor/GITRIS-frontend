@@ -54,14 +54,16 @@ type GamePhase = 'passcode_entry' | 'waiting' | 'playing' | 'game_over';
 export default function TetrisGame() {
   const [gamePhase, setGamePhase] = useState<GamePhase>('passcode_entry');
   const [passcode, setPasscode] = useState<string>('');
+  const [isHost, setIsHost] = useState<boolean>(false);
   const [gameSession, setGameSession] = useState<GameSession | null>(null);
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<'disconnected' | 'connecting' | 'connected'>('disconnected');
   const [gameResult, setGameResult] = useState<GameResult | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
-  const handlePasscodeSubmit = (inputPasscode: string) => {
+  const handleRoomReady = (inputPasscode: string, host: boolean) => {
     setPasscode(inputPasscode);
+    setIsHost(host);
     setGamePhase('waiting');
   };
 
@@ -77,6 +79,7 @@ export default function TetrisGame() {
   const handleReturnToEntry = () => {
     setGamePhase('passcode_entry');
     setPasscode('');
+    setIsHost(false);
     setGameSession(null);
     setSocket(null);
     setConnectionStatus('disconnected');
@@ -98,14 +101,16 @@ export default function TetrisGame() {
       case 'passcode_entry':
         return (
           <PasscodeEntry
-            onPasscodeSubmit={handlePasscodeSubmit}
+            onRoomReady={handleRoomReady}
           />
         );
-      
+
       case 'waiting':
         return (
           <WaitingRoom
             passcode={passcode}
+            isHost={isHost}
+            alreadyJoined={true}
             gameSession={gameSession}
             connectionStatus={connectionStatus}
             onGameStart={handleGameStart}
