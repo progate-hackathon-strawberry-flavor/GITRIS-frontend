@@ -1,18 +1,11 @@
-import Image from "next/image";
-import { createClient } from '@/lib/supabase/server';
 import LoginButton from '../components/login-button';
+import Image from 'next/image';
 import './globals.css';
 import HelpModalTrigger from './components/HelpModal/helpModal.module';
 import RankingModalTrigger from './components/rankingModal/RankingModalTrigger';
 import styles from './page.module.css';
-export default async function Login() {
-  // サーバーサイドでSupabaseクライアントを作成
-  const supabase = await createClient();
+export default function Login() {
 
-  // ユーザーのセッション情報（ログイン状態）を取得
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
 
   return (
     // CSS Modulesのクラスを適用
@@ -37,8 +30,7 @@ export default async function Login() {
           height={221}
           priority
         />
-        {/* @ts-ignore */}
-        <LoginButton session={user} />
+        <LoginButton />
       </div>
     </div>
   );

@@ -1,9 +1,11 @@
 "use client";
 
 import React, { useState } from 'react';
-import { createClient } from '@/lib/supabase/client'
+import { useAuth } from '@/hooks/useAuth';
+import { apiRequest } from '@/lib/api';
 
 export default function GetContributionsButton() {
+    const { user } = useAuth();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -12,15 +14,12 @@ export default function GetContributionsButton() {
         setError(null);
 
         try {
-            const supabase = createClient();
-            const { data: { user }, error: userError } = await supabase.auth.getUser();
-            if (userError || !user) {
-                throw new Error('ユーザー情報の取得に失敗しました');
+            if (!user) {
+                throw new Error('ユーザーがログインしていません');
             }
-            const userId = user.id;
-
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
-            const response = await fetch(`${apiUrl}/api/contributions/refresh/${userId}`, {
+            
+            const userId = user.userId;
+            const response = await apiRequest(`/api/protected/contributions/refresh/${userId}`, {
                 method: 'POST',
             });
 

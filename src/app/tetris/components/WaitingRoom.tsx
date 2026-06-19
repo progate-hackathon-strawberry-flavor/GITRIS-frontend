@@ -1,10 +1,9 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { GameSession } from '../page';
-import { useAuth } from '@/hooks/useAuth';
-import { useUserDisplayName } from '@/hooks/useAuth';
-import { createClient } from '@/lib/supabase/client';
+import { useAuth, useUserDisplayName } from '@/hooks/useAuth';
+import { apiRequest } from '@/lib/api';
 
 interface WaitingRoomProps {
   passcode: string;
@@ -29,14 +28,13 @@ export default function WaitingRoom({
   setConnectionStatus,
   setCurrentUserId
 }: WaitingRoomProps) {
-  const { user } = useAuth();
-  const [authToken, setAuthToken] = useState<string | null>(null);
   const [logs, setLogs] = useState<string[]>([]);
   const [testUserId, setTestUserId] = useState<string>('test-user-001');
   const [isPolling, setIsPolling] = useState(false);
   const [pollIntervalId, setPollIntervalId] = useState<NodeJS.Timeout | null>(null);
 
   // ユーザー名を取得するフック
+  const { token } = useAuth();
   const { displayName: player1Name } = useUserDisplayName(gameSession?.player1?.user_id || null);
   const { displayName: player2Name } = useUserDisplayName(gameSession?.player2?.user_id || null);
 
@@ -56,166 +54,88 @@ export default function WaitingRoom({
   };
 
   // ゲームセッション情報を取得する関数
-  const fetchGameSession = async () => {
+  const fetchGameSession = useCallback(async () => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
-      const sessionUrl = `${apiUrl}/api/game/room/passcode/${passcode}/status`;
-      
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json'
-      };
-      if (authToken) {
-        headers['Authorization'] = `Bearer ${authToken}`;
-      }
-      
-      const response = await fetch(sessionUrl, {
+      const response = await apiRequest(`/api/game/room/passcode/${passcode}/status`, {
         method: 'GET',
-        headers
-      });
+        credentials: 'include',
+      })
 
       if (response.ok) {
-        const sessionData = await response.json();
-        // セッション情報取得の詳細ログを削除
-        
-        // ゲームセッション情報を更新
-        setGameSession(sessionData);
-        
-        return sessionData;
-      } else {
-        // エラーログを削除
-        return null;
+        const sessionData = await response.json()
+        setGameSession(sessionData)
+        return sessionData
       }
+      return null
     } catch (error) {
-      // エラーログを削除
-      return null;
+      return null
     }
-  };
-
-  // ポーリング開始
-  const startPolling = () => {
-    if (isPolling || pollingInterval.current) {
-      return;
-    }
-    
-    setIsPolling(true);
-    
-    // 即座に1回実行
-    fetchGameSession();
-    
-    // 3秒間隔でポーリング
-    pollingInterval.current = setInterval(async () => {
-      const session = await fetchGameSession();
-      
-      // 2人揃ったらポーリング停止
-      if (session && session.player1 && session.player2) {
-        stopPolling();
-      }
-    }, 3000);
-  };
+  }, [passcode, setGameSession])
 
   // ポーリング停止
-  const stopPolling = () => {
+  const stopPolling = useCallback(() => {
     if (pollingInterval.current) {
-      clearInterval(pollingInterval.current);
-      pollingInterval.current = null;
+      clearInterval(pollingInterval.current)
+      pollingInterval.current = null
     }
-    setIsPolling(false);
-  };
+    setIsPolling(false)
+  }, [])
+
+  // ポーリング開始
+  const startPolling = useCallback(() => {
+    if (isPolling || pollingInterval.current) {
+      return
+    }
+
+    setIsPolling(true)
+
+    // 即座に1回実行
+    void fetchGameSession()
+
+    // 3秒間隔でポーリング
+    pollingInterval.current = setInterval(async () => {
+      const session = await fetchGameSession()
+
+      // 2人揃ったらポーリング停止
+      if (session && session.player1 && session.player2) {
+        stopPolling()
+      }
+    }, 3000)
+  }, [fetchGameSession, isPolling, stopPolling])
 
   // コンポーネントのクリーンアップ
   useEffect(() => {
     return () => {
       stopPolling();
     };
-  }, []);
+  }, [stopPolling]);
 
-  // 認証トークンを取得
+  // 認証情報をサーバー経由で取得（httpOnly cookie を利用）
   useEffect(() => {
     const getToken = async () => {
-      if (user) {
-        try {
-          const supabase = createClient();
-          const { data: { session } } = await supabase.auth.getSession();
-          if (session?.access_token) {
-      setAuthToken(session.access_token);
-      setCurrentUserId(user.id); // 認証済みユーザーIDを設定
-      
-          } else {
-            setAuthToken('BYPASS_AUTH');
-    
-          }
-        } catch (error) {
-          setAuthToken('BYPASS_AUTH');
-  
-        }
-    } else {
-      // 認証がない場合は認証バイパスモードで動作
-      setAuthToken('BYPASS_AUTH');
-      // ゲストモードでは一時的にtestUserIdを設定
-      setCurrentUserId(testUserId);
-    }
-    setIsInitialized(true); // 認証状態確定
-    };
-    
-    getToken();
-  }, [user, setCurrentUserId]);
-
-  const joinByPasscode = async () => {
-    if (hasJoined || joinInProgress.current) {
-      return;
-    }
-    
-    try {
-      joinInProgress.current = true; // ref による排他制御
-      setHasJoined(true); // 実行フラグを設定
-      
-      // ゲストユーザーの場合は"guest"を送信してバックエンドでゲストデッキを生成
-      const deckId = 'guest';
-
-      // 環境変数からバックエンドURLを取得
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
-      const backendUrl = `${apiUrl}/api/game/room/passcode/${passcode}/join`;
-      
-      // ヘッダーを構築（認証トークンがある場合のみ追加）
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json'
-      };
-      if (authToken) {
-        headers['Authorization'] = `Bearer ${authToken}`;
-      }
-      
-      const response = await fetch(backendUrl, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          deck_id: deckId
-        })
-      });
-
-      const data = await response.json();
-      
-      if (data.success) {
-        // レスポンスからUserIDを取得（認証バイパス時）
-        if (data.user_id) {
-          setTestUserId(data.user_id);
-          setCurrentUserId(data.user_id); // 認証バイパス時のユーザーIDを設定
+      try {
+        const res = await apiRequest('/api/protected/auth/me', { credentials: 'include' })
+        if (!res.ok) {
+          setCurrentUserId(testUserId)
         } else {
-          // data.user_idがない場合、testUserIdをフォールバックとして使用
-          setCurrentUserId(testUserId);
+          const { user: me } = await res.json()
+          const resolvedUserId = me?.id || me?.user_id || me?.userId
+          if (resolvedUserId) {
+            setTestUserId(resolvedUserId)
+            setCurrentUserId(resolvedUserId)
+          } else {
+            setCurrentUserId(testUserId)
+          }
         }
-        
-        // 入室成功後、ゲームセッション情報のポーリングを開始
-        setTimeout(() => {
-          startPolling();
-        }, 1000); // 1秒後にポーリング開始
+      } catch (err) {
+        setCurrentUserId(testUserId)
+      } finally {
+        setIsInitialized(true)
       }
-    } catch (error) {
-      setHasJoined(false); // エラー時はフラグをリセット
-      joinInProgress.current = false; // ref もリセット
-    } finally {
-      joinInProgress.current = false; // 正常終了時も ref をリセット
     }
-  };
+
+    getToken()
+  }, [setCurrentUserId, testUserId])
 
   const connectWebSocket = (retryCount = 0) => {
     // 既に接続済みまたは接続中の場合はスキップ
@@ -225,16 +145,15 @@ export default function WaitingRoom({
     
     setWsConnecting(true);
     
-    // 手動接続時はUserID チェックを緩和（認証トークンまたはテストユーザーIDがあれば OK）
-    if (!testUserId && !authToken) {
-
+    // JWT がなければ認証できないので中断する
+    if (!token) {
       setConnectionStatus('disconnected');
       setWsConnecting(false);
       return;
     }
     
     // 環境変数からWebSocketURLを構築
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+    const apiUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080';
     const wsUrl = apiUrl.replace('http://', 'ws://').replace('https://', 'wss://') + `/api/game/ws/${passcode}`;
     
     setConnectionStatus('connecting');
@@ -245,14 +164,13 @@ export default function WaitingRoom({
       setConnectionStatus('connected');
       setWsConnecting(false);
 
-      // 認証メッセージを送信
+      // 認証はJWTで行うため、WebSocket には token を送る。
       const authMessage = {
         type: 'auth',
-        token: authToken || 'BYPASS_AUTH',
-        user_id: testUserId // 認証バイパス時のUserIDを指定
-      };
-      
-      ws.send(JSON.stringify(authMessage));
+        token: `Bearer ${token}`,
+      }
+
+      ws.send(JSON.stringify(authMessage))
     };
 
     ws.onmessage = (event) => {
@@ -318,10 +236,45 @@ export default function WaitingRoom({
 
   // 初期化完了且つまだ入室していない場合のみ実行
   useEffect(() => {
-    if (isInitialized && !hasJoined) {
-      joinByPasscode();
+    if (!isInitialized || hasJoined) {
+      return;
     }
-  }, [isInitialized, hasJoined]); // sessionとauthTokenを依存配列から完全に除去
+
+    const joinByPasscode = async () => {
+      try {
+        joinInProgress.current = true;
+        setHasJoined(true);
+
+        const deckId = 'guest';
+        const response = await apiRequest(`/api/game/room/passcode/${passcode}/join`, {
+          method: 'POST',
+          credentials: 'include',
+          body: JSON.stringify({ deck_id: deckId }),
+        })
+
+        const data = await response.json();
+
+        if (data.success) {
+          if (data.user_id) {
+            setTestUserId(data.user_id);
+            setCurrentUserId(data.user_id);
+          } else {
+            setCurrentUserId(testUserId);
+          }
+
+          setTimeout(() => {
+            startPolling();
+          }, 1000);
+        }
+      } catch (error) {
+        setHasJoined(false);
+      } finally {
+        joinInProgress.current = false;
+      }
+    };
+
+    void joinByPasscode();
+  }, [hasJoined, isInitialized, passcode, setCurrentUserId, startPolling, testUserId]);
 
   // 自動WebSocket接続を完全に無効化
   // const [autoConnectTriggered, setAutoConnectTriggered] = useState(false);
@@ -490,12 +443,10 @@ export default function WaitingRoom({
               const confirmDelete = window.confirm(`セッション「${passcode}」を削除しますか？\n\n注意: 両方のプレイヤーが切断されます。`);
               if (confirmDelete) {
                 try {
-                  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/game/room/passcode/${passcode}/delete`, {
+                  const response = await apiRequest(`/api/game/room/passcode/${passcode}/delete`, {
                     method: 'DELETE',
-                    headers: {
-                      'Content-Type': 'application/json',
-                      ...(authToken && { 'Authorization': `Bearer ${authToken}` }),
-                    },
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
                   });
 
                   if (response.ok) {

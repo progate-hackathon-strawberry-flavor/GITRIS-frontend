@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { createClient } from '@/lib/supabase/client'
+import { useAuth } from '@/hooks/useAuth';
+import { apiRequest } from '@/lib/api';
 
 type Contribution = {
   Date: string;
@@ -17,6 +18,7 @@ const getGrassColor = (count: number) => {
 };
 
 export default function ContributionsDisplay() {
+  const { user } = useAuth();
   const [contributions, setContributions] = useState<Contribution[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -27,16 +29,11 @@ export default function ContributionsDisplay() {
     setContributions(null);
 
     try {
-      const supabase = createClient();
-
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      if (userError || !user) {
-        throw new Error('ユーザー情報の取得に失敗しました');
+      if (!user) {
+        throw new Error('ユーザーがログインしていません');
       }
-      const userId = user.id;
-
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
-      const response = await fetch(`${apiUrl}/api/contributions/${userId}`);
+      const userId = user.userId;
+      const response = await apiRequest(`/api/protected/contributions/${userId}`);
 
       if (!response.ok) {
         throw new Error(`APIエラー: ${response.status}`);

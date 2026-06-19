@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gitris-frontend-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: gitris-frontend
+  template:
+    metadata:
+      labels:
+        app: gitris-frontend
+    spec:
+      containers:
+      - name: gitris-frontend-container
+        # ECRのURIに置換
+        image: 678780125373.dkr.ecr.ap-northeast-1.amazonaws.com/gitris-frontend:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+        env:
+        - name: HOSTNAME
+          value: "0.0.0.0"
+        - name: BACKEND_URL
+          value: http://gitris-backend-service:8080
+        - name: NEXT_PUBLIC_GITHUB_CLIENT_ID
+          value: Ov23likztPnQzSLMIDdv
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gitris-frontend-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: gitris-frontend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000

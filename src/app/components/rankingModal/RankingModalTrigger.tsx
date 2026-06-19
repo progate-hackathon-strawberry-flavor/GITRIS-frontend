@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import styles from './rankingModal.module.css'; // ランキングモーダル用のCSS Modulesをインポート
 import { useUserDisplayName } from '@/hooks/useAuth';
+import { apiRequest } from '@/lib/api';
 
 interface ResultData {
   id: number;
@@ -37,11 +38,8 @@ export default function RankingModalTrigger() {
     setError(null);
     
     try {
-      const response = await fetch('/api/results?limit=50', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+      const response = await apiRequest('/api/results', {
+        params: { limit: 50 },
       });
 
       if (!response.ok) {

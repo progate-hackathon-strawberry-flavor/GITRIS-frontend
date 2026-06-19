@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { apiRequest } from "@/lib/api";
 import { useRouter } from 'next/navigation';
 
 const Header = () => {
@@ -11,30 +11,26 @@ const Header = () => {
   
   useEffect(() => {
     const fetchUser = async () => {
-      const supabase = createClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      try {
+        const response = await apiRequest('/api/protected/auth/me', { credentials: 'include' });
 
-  
+        if (!response.ok) {
+          setIconUrl(null);
+          setUserId(null);
+          return;
+        }
 
-      if (user && user.id) {
-        // usersテーブルからicon_urlとidを取得
-        const { data, error } = await supabase
-          .from("users")
-          .select('*')
-          .eq("id", user.id)
-          .single();
-          
+        const data = await response.json();
+        const resolvedUserId = data?.user?.login || data?.user?.userId || data?.user?.id || data?.user?.user_id;
 
-        if (!error && data) {
-          setIconUrl(data.icon_url ?? null);
-          setUserId(data.user_name ?? null);
+        if (resolvedUserId) {
+          setUserId(resolvedUserId);
+          setIconUrl(`https://github.com/${resolvedUserId}.png`);
         } else {
           setIconUrl(null);
           setUserId(null);
         }
-      } else {
+      } catch (error) {
         setIconUrl(null);
         setUserId(null);
       }

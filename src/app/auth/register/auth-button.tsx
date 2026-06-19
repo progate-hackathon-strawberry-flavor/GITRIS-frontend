@@ -1,41 +1,40 @@
-'use client' // ★最重要：クライアントコンポーネントであることを宣言
+'use client'
 
-import { createClient } from '@/lib/supabase/client' // ★ブラウザ用のクライアントをインポート
-import { type Session } from '@supabase/supabase-js'
+import { useAuth } from '@/hooks/useAuth'
 import { useRouter } from 'next/navigation'
 
-// page.tsx などから渡される session プロパティの型を定義
-interface AuthButtonProps {
-  session: Session | null
-}
-
-export default function AuthButton({ session }: AuthButtonProps) {
-  // ブラウザで動作するSupabaseクライアントを作成
-  const supabase = createClient()
-  // ページを更新するためのルーター
+export default function AuthButton() {
+  const { token, signOut } = useAuth()
   const router = useRouter()
 
-  // GitHubでサインインする処理
   const handleSignIn = async () => {
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || location.origin;
-    await supabase.auth.signInWithOAuth({
-      provider: 'github',
-      options: {
-        // ログイン後にリダイレクトするURL
-        redirectTo: `${appUrl}/auth/callback`,
-      },
-    })
+    try {
+      const clientId = process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID
+      // const redirectUri = `${window.location.origin}/auth/callback`
+      const redirectUri = process.env.NEXT_PUBLIC_APP_URL ? `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback` : `http://localhost:3000/auth/callback`
+      
+      if (!clientId) {
+        throw new Error('GitHub Client ID not configured')
+      }
+
+      const authUrl = new URL('https://github.com/login/oauth/authorize')
+      authUrl.searchParams.append('client_id', clientId)
+      authUrl.searchParams.append('redirect_uri', redirectUri)
+      authUrl.searchParams.append('scope', 'user:email')
+      authUrl.searchParams.append('state', Math.random().toString(36).substring(7))
+
+      window.location.href = authUrl.toString()
+    } catch (err) {
+      console.error('Login error:', err)
+    }
   }
 
-  // サインアウトする処理
   const handleSignOut = async () => {
-    await supabase.auth.signOut()
-    // ★重要：サーバーコンポーネントのデータを更新するためにページをリフレッシュ
+    await signOut()
     router.refresh()
   }
 
-  // session の有無で表示するボタンを切り替える
-  return session ? (
+  return token ? (
     <button onClick={handleSignOut}>ログアウト</button>
   ) : (
     <button onClick={handleSignIn}>GitHubでログイン</button>
